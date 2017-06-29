@@ -1,5 +1,30 @@
-##########Read FLAMe instrument data, construct a single file####################
-#################################################################################
+
+# ##############################################################
+# Read SuperFLAMe data, construct a single file
+# Input is folder directory
+# Output is a merged datatable
+# ##############################################################
+
+dir<-'E:/Dropbox/FLAME_Light/Data/2017-06-27_LakeMendota'
+dir2<-'E:/Dropbox/FLAME_Light/Data/2017-06-27_LakeMendota2'
+
+
+ReadSuperFlame<-function(dir){
+  
+  if (length(list.files(dir)) == 0) {
+    stop("No files in directory")}
+  
+  print('Good directory')
+    
+}
+
+#Test run
+
+ReadSuperFlame(dir)
+ReadSuperFlame(dir2)
+
+# Old Code below from original Flame scripts
+
 read_instruments=function(meta){
 require(stringr)
 LaserPath <- list.files(path = paste(getwd(), "/laser", sep=""))
