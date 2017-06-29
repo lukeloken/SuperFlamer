@@ -8,19 +8,33 @@
 dir<-'E:/Dropbox/FLAME_Light/Data/2017-06-27_LakeMendota'
 dir2<-'E:/Dropbox/FLAME_Light/Data/2017-06-27_LakeMendota2'
 
+library(data.table)
 
 ReadSuperFlame<-function(dir){
-  
-  if (length(list.files(dir)) == 0) {
+  files<-list.files(dir)
+  if (length(files) == 0) {
     stop("No files in directory")}
   
-  print('Good directory')
-    
+  #Merge data files that contain these strings in the file name
+  patterns<-'GPS|BoxMetrics|EXO|GGA|Nitrate'
+  loadfiles<-files[grep(patterns, files)]
+  
+  #Read files and omit RECORD column
+  import.list <- lapply(paste(dir, loadfiles, sep="/"), fread, sep=",", skip=1)
+  import.list2 <- lapply(import.list, function(x)x[,-c('RECORD')])
+
+  #Merge datatables using TIMESTAMP
+  my.df <- Reduce(function(x, y) merge(x, y, all=FALSE,by=c("TIMESTAMP"),all.x=TRUE, all.y=TRUE),import.list2,accumulate=F) 
+  
+  head(my.df)
+  head(import.list[1])
+  head(import.list[2])
 }
 
 #Test run
 
 ReadSuperFlame(dir)
+
 ReadSuperFlame(dir2)
 
 # Old Code below from original Flame scripts
