@@ -89,7 +89,7 @@ geodata<-MakeSuperFlameSpatialPoints(trimdata)
 writeOGR(geodata, dsn=paste(dir, "/ProcessedData", sep="") ,layer=as.character(paste(Date, "_", Site, "_04_Shapefile", sep="")), driver="ESRI Shapefile",  verbose=F, overwrite=T)
 
 # Visualize Data
-
+PlotSuperFlame(geodata, dir)
 
 # Print Warning Messages
 warnings()
