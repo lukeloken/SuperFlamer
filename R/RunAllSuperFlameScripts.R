@@ -16,6 +16,7 @@ RunSuperFlame<-function(dir){
   source('R/ConvertLatLongToDecimalDegree.R')
   source('R/MakeSuperFlameSpatialPoints.R')
   source('R/VisualizeSpatialData.R')
+  source('R/ExtractSampleData.R')
   
   # ###############
   # Find meta table
@@ -30,6 +31,7 @@ RunSuperFlame<-function(dir){
   #read meta table and omit rows that are empty
   meta<-fread(paste(rawdir, metafile, sep="/"), sep=",", skip=0, header=T)
   meta<-subset(meta, is.na(as.POSIXct(Flame_on, format="%H:%M:%S"))==FALSE)
+  tz<-meta$GPS_Timezone[1]
   
   if (nrow(meta) ==0) {
     stop("Metatable has zero flame on/off times")}
@@ -93,6 +95,14 @@ RunSuperFlame<-function(dir){
   
   # Visualize Data
   PlotSuperFlame(geodata, dir, Date, Site)
+  
+  # Extract Sample Data
+  samplefile<-list.files(rawdir)[grep('FlameSamples', list.files(rawdir))]
+  sample<-fread(paste(rawdir, samplefile, sep="/"), sep=",", skip=0, header=T)
+  sample<-subset(sample, !is.na(as.POSIXct(sample$`Sample Time`, format="%H:%M:%S")))
+  sampledata<-ExtractSample(trimdata, sample, dir, Date, tz)
+  
+  write.table(sampledata, file = as.character(paste(dir, '/ProcessedData/', Date, "_", Site, "_05_Samples.csv", sep="")), col.names=TRUE,row.names=F, sep=",")
   
   # Print Warning Messages
   warnings()
