@@ -41,9 +41,15 @@ ReadSuperFlame<-function(dir){
   #Merge datatables using TIMESTAMP
   my.df <- Reduce(function(x, y) merge(x, y, all=FALSE,by=c("TIMESTAMP"),all.x=TRUE, all.y=TRUE),import.list,accumulate=F) 
   
+  if (nrow(my.df)==0){
+    stop("Merged data table has zero rows")}
+  
   #Set Date_Time as time (need to check timezone)
-  my.df$Date_Time<-as.POSIXct(my.df$TIMESTAMP, format='%Y-%m-%d %H:%M:%S', tz='UTC')
-
+  my.df$date_time<-as.POSIXct(my.df$TIMESTAMP, format='%Y-%m-%d %H:%M:%S', tz='UTC')
+  
+#   #Set Lat/Long to decimal degrees rather than ddmm.mmmm
+#   my.df[,c('longitude', 'latitude')]<-lapply(my.df[,c('longitude', 'latitude')], ConvertToDD)
+#   
   return(my.df)
 
 }
