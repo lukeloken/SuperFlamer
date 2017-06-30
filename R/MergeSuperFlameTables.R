@@ -2,27 +2,33 @@
 # ##############################################################
 # Read SuperFLAMe data, construct a single file
 # Input is folder directory
-# Output is a merged datatable
+# Output is a merged datatable of all SuperFlame Data
 # ##############################################################
-
-dir<-'E:/Dropbox/FLAME_Light/Data/2017-06-27_LakeMendota/RawData'
-dir2<-'E:/Dropbox/FLAME_Light/Data/2017-06-27_LakeMendota2'
 
 library(data.table)
 
 ReadSuperFlame<-function(dir){
-  files<-list.files(dir)
-  if (length(files) == 0) {
-    stop("No files in directory")}
+  rawdir<-paste(dir, 'RawData', sep="/")
+  files<-list.files(rawdir)
+  if (length(files) ==0) {
+    stop("No files in 'dir/RawData' subdirectory")}
   
-  #Merge data files that contain these strings in the file name
-  patterns<-'GPS|BoxMetrics|EXO|GGA|Nitrate'
-  loadfiles<-files[grep(patterns, files)]
+  # Merge data files that contain these strings in the file name
+  # Load files in this order
+  patterns<-c('GPS', 'BoxMetrics', 'EXO', 'GGA', 'SUNA')
+  loadfiles<-c(files[grep(patterns[1], files)], 
+                files[grep(patterns[2], files)], 
+                files[grep(patterns[3], files)], 
+                files[grep(patterns[4], files)], 
+                files[grep(patterns[5], files)])
+  
+  if (length(loadfiles) == 0) {
+    stop("'dir/RawData' does not contain correct files (e.g., '..._GPS.dat')")}
   
   # Get header names
-  header.list<-lapply(paste(dir, loadfiles, sep="/"), fread, sep=",", skip=1, nrows=0)
+  header.list<-lapply(paste(rawdir, loadfiles, sep="/"), fread, sep=",", skip=1, nrows=0)
   # Get data
-  import.list <- lapply(paste(dir, loadfiles, sep="/"), fread, sep=",", skip=4, header=F, stringsAsFactors=F, na.strings=c('NA', 'NaN', '', 'null', '"NAN"'))
+  import.list <- lapply(paste(rawdir, loadfiles, sep="/"), fread, sep=",", skip=4, header=F, stringsAsFactors=F, na.strings=c('NA', 'NaN', '', 'null', '"NAN"'))
   
   # Put header names on correct data frame
   for (df in 1:length(import.list)){
@@ -42,11 +48,4 @@ ReadSuperFlame<-function(dir){
 
 }
 
-#Test run
-
-data<-ReadSuperFlame(dir)
-
-str(data)
-
-ReadSuperFlame(dir2)
 
