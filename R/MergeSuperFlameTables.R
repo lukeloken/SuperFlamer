@@ -47,8 +47,8 @@ ReadSuperFlame<-function(dir){
   #Set Date_Time as time (need to check timezone)
   my.df$date_time<-as.POSIXct(my.df$TIMESTAMP, format='%Y-%m-%d %H:%M:%S', tz='UTC')
   
-  #Set Lat/Long to decimal degrees rather than ddmm.mmmm
-  my.df[,c('longitude', 'latitude')]<-lapply(my.df[,c('longitude', 'latitude')], ConvertToDD)
+  # Set Lat/Long to decimal degrees rather than ddmm.mmmm (likely delete after July 5, 2017)
+  # my.df[,c('longitude', 'latitude')]<-lapply(my.df[,c('longitude', 'latitude')], ConvertToDD)
   
   return(my.df)
 
