@@ -98,13 +98,15 @@ RunSuperFlame<-function(dir){
   
   # Extract Sample Data
   samplefile<-list.files(rawdir)[grep('FlameSamples', list.files(rawdir))]
-  sample<-fread(paste(rawdir, samplefile, sep="/"), sep=",", skip=0, header=T)
-  sample<-subset(sample, !is.na(as.POSIXct(sample$`Sample Time`, format="%H:%M:%S")))
-  sampledata<-ExtractSample(trimdata, sample, dir, Date, tz)
-  
-  write.table(sampledata, file = as.character(paste(dir, '/ProcessedData/', Date, "_", Site, "_05_Samples.csv", sep="")), col.names=TRUE,row.names=F, sep=",")
-  
-  # Print Warning Messages
-  warnings()
+  if (length(samplefile) != 1) {
+    warning("'dir/RawData' does not contain one FlameSample file (e.g., 'FlameSamplesDate.csv')")
+    }  else {
+    sample<-fread(paste(rawdir, samplefile, sep="/"), sep=",", skip=0, header=T)
+    sample<-subset(sample, !is.na(as.POSIXct(sample$`Sample Time`, format="%H:%M:%S")))
+    sampledata<-ExtractSample(trimdata, sample, dir, Date, tz)
+    
+    write.table(sampledata, file = as.character(paste(dir, '/ProcessedData/', Date, "_", Site, "_05_Samples.csv", sep="")), col.names=TRUE,row.names=F, sep=",")
+  }
+
   
 }
