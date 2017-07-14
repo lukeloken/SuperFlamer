@@ -5,7 +5,7 @@
 
 require(caTools)
 
-TauCorrectSuperFlame<-function(trimdata, tautable, plot=FALSE, ...){
+TauCorrectSuperFlame<-function(trimdata, tautable, tauplot=F, ...){
   
   # Using Manual Fit Taus
   par(mfrow=c(1,1))
@@ -42,7 +42,7 @@ TauCorrectSuperFlame<-function(trimdata, tautable, plot=FALSE, ...){
       ylim=extendrange(X, f=0.05)
       
       # if(!is.null(plot)){
-      if(plot==TRUE){
+      if(tauplot==TRUE){
         plot(Tau_X, col="blue", type="l", ylim=ylim, main=paste(name), xlab="time (s)", ylab=name)
         points(lag, col="red", type="l")
         points(X, col="black", type="l")
