@@ -54,7 +54,7 @@ RunSuperFlame<-function(dir, ...){
   # Load tau table and apply corrections
   taufile<-list.files('Data')[grep(FLAME_Unit, list.files('Data'))]
   if (length(taufile) != 1) {
-    stop("'Data' does not contain one Tau file (e.g., 'Manual_Hydros_Taus_FLAME_Unit.csv')")}
+    stop("'Data' does not contain Tau file for FLAME_Unit (e.g., 'Manual_Hydros_Taus_2017.01.csv') - Check FLAME_Unit on metafile")}
   tautable<-fread(paste('Data',taufile, sep="/"), sep=",", skip=0, header=T)
   
   correctdata<-TauCorrectSuperFlame(trimdata, tautable, ...)
