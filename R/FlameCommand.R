@@ -12,4 +12,4 @@ dir<-'E:/Dropbox/FLAME_Light/Data/2017-07-12_TauTrout'
 
 source('R/RunAllSuperFlameScripts.R')
 
-RunSuperFlame(dir, tauplot=T)
+RunSuperFlame(dir, plotdiag=T)
