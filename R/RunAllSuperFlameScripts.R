@@ -14,6 +14,8 @@ RunSuperFlame<-function(dir, ...){
   source('R/CutSuperFlameTables.R')
   source('R/TrimSuperFlameTables.R')
   source('R/TauCorrectSuperFlame.R')
+  source('R/RollingMAD.R')
+  source('R/CleanSuperFlame.R')
   source('R/ConvertLatLongToDecimalDegree.R')
   source('R/MakeSuperFlameSpatialPoints.R')
   source('R/VisualizeSpatialData.R')
@@ -51,7 +53,11 @@ RunSuperFlame<-function(dir, ...){
   #Trim data to reduce number of columns
   trimdata<-TrimSuperFlame(cutdata)
   
-  # Load tau table and apply corrections
+  #Convert gases 
+  # Still need to code this...
+  # convertdata<-ConvertGasSuperFlame(trimdata)
+  
+  #Load tau table and apply corrections
   taufile<-list.files('Data')[grep(FLAME_Unit, list.files('Data'))]
   if (length(taufile) != 1) {
     stop("'Data' does not contain Tau file for FLAME_Unit (e.g., 'Manual_Hydros_Taus_2017.01.csv') - Check FLAME_Unit on metafile")}
@@ -59,6 +65,13 @@ RunSuperFlame<-function(dir, ...){
   
   correctdata<-TauCorrectSuperFlame(trimdata, tautable, ...)
   
+  #Clean data using SensorQC
+  rulefile<-list.files('Data')[grep('SensorQCRules', list.files('Data'))]
+  if (length(rulefile) != 1) {
+    stop("'Data' does not contain Tau file for FLAME_Unit (e.g., 'Manual_Hydros_Taus_2017.01.csv') - Check FLAME_Unit on metafile")}
+  ruletable<-fread(paste('Data',rulefile, sep="/"), sep=",", skip=0, header=T)
+  
+  cleandata<-CleanSuperFlame(correctdata, ruletable, ...)
   
   # ###########
   # Output Data
@@ -97,12 +110,13 @@ RunSuperFlame<-function(dir, ...){
   write.table(alldata, file = as.character(paste(dir, '/ProcessedData/', Date, "_", Site, "_01_Merged.csv", sep="")), col.names=TRUE,row.names=F, sep=",")
   write.table(cutdata, file = as.character(paste(dir, '/ProcessedData/', Date, "_", Site, "_02_Cut.csv", sep="")), col.names=TRUE,row.names=F, sep=",")
   write.table(trimdata, file = as.character(paste(dir, '/ProcessedData/', Date, "_", Site, "_03_Trimmed.csv", sep="")), col.names=TRUE,row.names=F, sep=",")
-  write.table(correctdata, file = as.character(paste(dir, '/ProcessedData/', Date, "_", Site, "_04_Corrected.csv", sep="")), col.names=TRUE,row.names=F, sep=",")
+  write.table(correctdata, file = as.character(paste(dir, '/ProcessedData/', Date, "_", Site, "_04_TauCorrected.csv", sep="")), col.names=TRUE,row.names=F, sep=",")
+  write.table(cleandata, file = as.character(paste(dir, '/ProcessedData/', Date, "_", Site, "_05_Cleaned.csv", sep="")), col.names=TRUE,row.names=F, sep=",")
   
   
   # Make a spatial points dataframe and save as a shapefile
   geodata<-MakeSuperFlameSpatialPoints(trimdata)
-  writeOGR(geodata, dsn=paste(dir, "/ProcessedData", sep="") ,layer=as.character(paste(Date, "_", Site, "_05_Shapefile", sep="")), driver="ESRI Shapefile",  verbose=F, overwrite=T)
+  writeOGR(geodata, dsn=paste(dir, "/ProcessedData", sep="") ,layer=as.character(paste(Date, "_", Site, "_06_Shapefile", sep="")), driver="ESRI Shapefile",  verbose=F, overwrite=T)
   
   # Visualize Data
   PlotSuperFlame(geodata, dir, Date, Site)
@@ -116,7 +130,7 @@ RunSuperFlame<-function(dir, ...){
     sample<-subset(sample, !is.na(as.POSIXct(sample$`Sample Time`, format="%H:%M:%S")))
     sampledata<-ExtractSample(trimdata, sample, dir, Date, tz)
     
-    write.table(sampledata, file = as.character(paste(dir, '/ProcessedData/', Date, "_", Site, "_06_Samples.csv", sep="")), col.names=TRUE,row.names=F, sep=",")
+    write.table(sampledata, file = as.character(paste(dir, '/ProcessedData/', Date, "_", Site, "_07_Samples.csv", sep="")), col.names=TRUE,row.names=F, sep=",")
   }
 
   
