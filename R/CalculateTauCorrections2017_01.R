@@ -60,20 +60,18 @@ fDOM_RFU<-c(8,2)
 fDOM_QSU<-c(8,2)
 
 CH4<-c(13,150)
-H2O<-c(13,100)
+# H2O<-c(13,100)
 CO2<-c(13,14)
 
-no3_uM<-c(1,1)
-nn03_mg<-c(1,1)
-abs254<-c(1,1)
-abs350<-c(1,1)
+# no3_uM<-c(1,0)
+# nn03_mg<-c(1,0)
+# abs254<-c(1,0)
+# abs350<-c(1,0)
 
 manual_hydro<-data.frame(temp,specCond,pH, chlor_ugL,
                          chlor_RFU,ODO_percent, ODO_mgL,BGApc_RFU,
                          BGApc_ugL,turb_FNU,fDOM_RFU,fDOM_QSU,
-                         CH4,H2O,CO2,
-                         no3_uM,nn03_mg,abs254,abs350)
-
+                         CH4,CO2)
 
 manual_hydro$names<-c("hydro", "tau")
 table_export<-manual_hydro[,c(ncol(manual_hydro), 1:(ncol(manual_hydro)-1))]
