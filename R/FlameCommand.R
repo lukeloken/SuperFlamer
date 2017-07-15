@@ -5,7 +5,9 @@
 # 2) meta tables (.csv) from access (e.g., FlameMetaDate.csv)
 # ##########################################################################
 
-dir<-'E:/Dropbox/FLAME_Light/Data/2017-06-27_LakeMendota'
+closeAllConnections()
+
+# dir<-'E:/Dropbox/FLAME_Light/Data/2017-06-27_LakeMendota'
 dir<-'E:/Dropbox/FLAME_Light/Data/2017-07-12_TauTrout'
 
 source('R/RunAllSuperFlameScripts.R')
