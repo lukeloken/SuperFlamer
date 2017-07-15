@@ -5,7 +5,7 @@
 
 require(caTools)
 
-TauCorrectSuperFlame<-function(trimdata, tautable, tauplot=F, ...){
+TauCorrectSuperFlame<-function(trimdata, tautable, tauplot=FALSE){
   
   # Using Manual Fit Taus
   par(mfrow=c(1,1))
