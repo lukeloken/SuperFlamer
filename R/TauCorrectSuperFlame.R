@@ -18,7 +18,7 @@ TauCorrectSuperFlame<-function(trimdata, tautable, plotdiag=FALSE){
   for (column in 9:ncol(trimdata)){
     X<-trimdata[[column]]
     name<-names(trimdata)[column]
-    if (class(X)=='numeric' & is.element(name, names(tautable))){
+    if (class(X)=='numeric' & length(which(is.finite(X)==T))>1 & is.element(name, names(tautable))){
       
       col_number<-which(names(tautable) == as.character(name))
       hydro<-unlist(round(tautable[1,col_number, with=FALSE]))
