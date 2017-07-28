@@ -1,7 +1,7 @@
 # #####################################################
 # Script to clean erroneous values in flame data
 # Uses Jordan Read's SensorQC program available via github
-# Input is tau corrected data table (correctdata) and rule table
+# Input is tau corrected and gas converted data table (convertdata) and rule table
 # Output is cleaned data table (cleandata)
 # #####################################################
 
@@ -12,22 +12,22 @@ install_github('jread-usgs/sensorQC')
 # install_github('USGS-R/sensorQC')
 library(sensorQC)
 
-CleanSuperFlame<-function(correctdata, ruletable, plotdiag=FALSE){
+CleanSuperFlame<-function(convertdata, ruletable, plotdiag=FALSE){
   
   # ==========================================================
   # Function to clean multiple parameters of a dataframe
   # col1 = times; col2 and up == variables
-  # Requires a data.frame of rules that match correctdata column names
+  # Requires a data.frame of rules that match convertdata column names
   # window = number of observations to include in both directions for rollingMAD
   # ==========================================================
   
   # Create emtpy data.frame to fill with cleaned values. 
   # Keep only column 1 (times)
-  cleanedframe<- correctdata
+  cleanedframe<- convertdata
   # cleanedframe$date_time<-NULL
   
   col=9
-  #Clean all variables in correctdata starting with column 2
+  #Clean all variables in convertdata starting with column 2
   for (col in 2:ncol(cleanedframe)){
     
     # Create sensor object and fill 'w' slot with rollingMAD
