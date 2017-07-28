@@ -8,7 +8,7 @@
 closeAllConnections()
 
 # dir<-'E:/Dropbox/FLAME_Light/Data/2017-06-27_LakeMendota'
-dir<-'E:/Dropbox/FLAME_Light/Data/2017-07-27_AllequashLake'
+dir<-'E:/Dropbox/FLAME_Light/Data/2017-07-27_BoulderLake'
 
 source('R/RunAllSuperFlameScripts.R')
 
