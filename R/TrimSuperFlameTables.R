@@ -19,12 +19,17 @@ TrimSuperFlame<-function(cutdata){
   
   trimdata<-cutdata[,vars_keep, with=FALSE] 
   
-  if (ncol(trimdata)==0){
+  #remove columns full of nas
+  
+  trimdata2<-trimdata[, !apply(trimdata, 2, function(x) all(is.na(x))), with=F]
+  NAnames<-setdiff(names(trimdata), names(trimdata2))
+  if (length(NAnames)>1) {
+    warning(paste("Some columns contain all NAs :", paste(NAnames, collapse=" ")))
+    }
+  
+  if (ncol(trimdata2)==0){
     stop("No matching column names. All columns trimmed")}
   
-  
-  round(trimdata$latitude, 3)
-  
-  return(trimdata)
+  return(trimdata2)
   
 }
