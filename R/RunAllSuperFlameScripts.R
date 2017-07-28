@@ -15,6 +15,7 @@ RunSuperFlame<-function(dir, ...){
   source('R/TrimSuperFlameTables.R')
   source('R/CalculateKhPlummer.R')
   source('R/CalculateKh.R')
+  source('R/ConvertGasesSuperFlame.R')
   source('R/CalculateGasSaturation.R')
   source('R/TauCorrectSuperFlame.R')
   source('R/RollingMAD.R')
