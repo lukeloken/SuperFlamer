@@ -6,9 +6,10 @@
 
 ConvertGasesSuperFlame=function(correctdata, Elevation){
   
-  if(length(intersect(names(correctdata), c('CO2', 'CH4')))>=1 ){
+  convertdata<-correctdata
+  
+  if(length(which(is.finite(c(correctdata$CO2, correctdata$CH4)))==T)>1){
     
-    convertdata<-correctdata
     Pressure=(1-(.0000225577*Elevation))^5.25588# atmospheres
     
     #convert methane units 
