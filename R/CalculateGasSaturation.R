@@ -23,5 +23,5 @@ getSaturation <- function(LakeKh, AtmP, gas){
   
   AtmosphereConc <-  unlist(Atmosphere[gas])[1]
   
-  EquilSaturation=AtmosphereConc*LakeKh/AtmP #umol/L, mmol/m3
+  EquilSaturation=AtmosphereConc*LakeKh*AtmP #umol/L, mmol/m3
 }
