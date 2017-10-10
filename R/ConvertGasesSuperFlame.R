@@ -27,7 +27,7 @@ ConvertGasesSuperFlame=function(correctdata, Elevation){
     
     #convert CO2 units
     CO2kh=Kh_Plummer(convertdata$temp+273.15)
-    CO2getsat=as.numeric(getSaturation(convertdata$CO2kh, Pressure, "CO2"))
+    CO2getsat=as.numeric(getSaturation(CO2kh, Pressure, "CO2"))
     
     convertdata$CO2uM<-as.numeric(convertdata$CO2*CO2kh*Pressure)
     convertdata$CO2Sat<-as.numeric(convertdata$CO2uM/CO2getsat*100)
