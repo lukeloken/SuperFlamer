@@ -21,7 +21,7 @@ TrimSuperFlame<-function(cutdata){
   
   #remove columns full of nas
   
-  trimdata2<-trimdata[, !apply(trimdata, 2, function(x) all(is.na(x))), with=F]
+  trimdata2<-trimdata[, as.vector(!apply(trimdata, 2, function(x) all(is.na(x)))), with=F]
   NAnames<-setdiff(names(trimdata), names(trimdata2))
   if (length(NAnames)>1) {
     warning(paste("Some columns contain all NAs :", paste(NAnames, collapse=" ")))
