@@ -123,7 +123,7 @@ RunSuperFlame<-function(dir, ...){
   writeOGR(geodata, dsn=paste(dir, "/ProcessedData", sep="") ,layer=as.character(paste(Date, "_", Site, "_06_ShapefileRaw", sep="")), driver="ESRI Shapefile",  verbose=F, overwrite=T)
   
   geodataclean<-MakeSuperFlameSpatialPoints(cleandata)
-  writeOGR(geodata, dsn=paste(dir, "/ProcessedData", sep="") ,layer=as.character(paste(Date, "_", Site, "_07_ShapefileCleaned", sep="")), driver="ESRI Shapefile",  verbose=F, overwrite=T)
+  writeOGR(geodataclean, dsn=paste(dir, "/ProcessedData", sep="") ,layer=as.character(paste(Date, "_", Site, "_07_ShapefileCleaned", sep="")), driver="ESRI Shapefile",  verbose=F, overwrite=T)
   
   
   # Visualize Data
