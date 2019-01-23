@@ -5,6 +5,8 @@
 # 2) meta tables (.csv) from access (e.g., FlameMetaDate.csv)
 # ##########################################################################
 
+#Clean environment and connections
+rm(list=ls())
 closeAllConnections()
 
 # If you need to install sensorQC use this command
@@ -15,4 +17,5 @@ dir<-'C:/Dropbox/FLAMe_2018/Data/2018-06-27_WhiteBirchLake'
 
 source('R/RunAllSuperFlameScripts.R')
 
+# plotdiag=F will turn off sensorQC plotting (outlier flags)
 RunSuperFlame(dir, plotdiag=T)
