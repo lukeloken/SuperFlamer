@@ -45,6 +45,9 @@ RunSuperFlame<-function(dir, ...){
   if (nrow(meta) ==0) {
     stop("Metatable has zero flame on/off times")}
   
+  if (is.finite(meta$Elevation[1])==FALSE) {
+    stop("Metatable missing elevation. Needed for CO2 and CH4 unit conversion. Go back to the access file, enter the elevation, and reexport the meta csv to the appropriate data folder.")}
+  
   # ##############################
   # Merge, cut, and trim datafiles
   # ##############################
