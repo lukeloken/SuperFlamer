@@ -7,8 +7,11 @@
 
 closeAllConnections()
 
+# If you need to install sensorQC use this command
+# install.packages("sensorQC", repos = c("http://owi.usgs.gov/R","http://cran.rstudio.com/"), dependencies = TRUE)
+
 # dir<-'E:/Dropbox/FLAME_Light/Data/2017-06-27_LakeMendota'
-dir<-'E:/Dropbox/FLAME_Light/Data/2017-07-27_BoulderLake'
+dir<-'C:/Dropbox/FLAMe_2018/Data/2018-06-27_WhiteBirchLake'
 
 source('R/RunAllSuperFlameScripts.R')
 
