@@ -8,7 +8,8 @@
 
 library(devtools)
 library(dplyr)
-install_github('jread-usgs/sensorQC')
+# install.packages("sensorQC", repos = c("http://owi.usgs.gov/R","http://cran.rstudio.com/"), dependencies = TRUE)
+# install_github('jread-usgs/sensorQC')
 # install_github('USGS-R/sensorQC')
 library(sensorQC)
 
