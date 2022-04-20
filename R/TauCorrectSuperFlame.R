@@ -13,9 +13,9 @@ TauCorrectSuperFlame<-function(trimdata, tautable, plotdiag=FALSE){
   kCH4<-10#Number of obs for running mean calculation for Methane
   colnames<-names(tautable)
   
-  column=9 #variable number. var=9 is typically first for SuperFlame data 
+  column=8 #variable number. var=9 is typically first for SuperFlame data 
   
-  for (column in 9:ncol(trimdata)){
+  for (column in 8:ncol(trimdata)){
     X<-trimdata[[column]]
     name<-names(trimdata)[column]
     if (class(X)=='numeric' & length(which(is.finite(X)==T))>1 & is.element(name, names(tautable))){
@@ -39,7 +39,7 @@ TauCorrectSuperFlame<-function(trimdata, tautable, plotdiag=FALSE){
       trimdata[,paste(name, "_hyd", sep="") := lag]
       trimdata[,paste(name, "_tau", sep="") := Tau_X]
       
-      ylim=extendrange(X, f=0.05)
+      ylim=extendrange(X[is.finite(X)], f=0.05)
       
       if(plotdiag==TRUE){
         plot(Tau_X, col="blue", type="l", ylim=ylim, main=paste(name), xlab="time (s)", ylab=name)
