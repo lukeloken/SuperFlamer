@@ -52,9 +52,11 @@ CleanSuperFlame<-function(convertdata, ruletable, plotdiag=FALSE){
       if(plotdiag==TRUE){
         flags<-data[[2]]
         flags[which(flags==cleanedframe[[col]])]<-NA
-        plot(data[[2]], col="black", ylab=names(data)[2], xlab="time", ylim=range(data[[2]], na.rm=TRUE))
+        plot(data[[2]], col="black", ylab=names(data)[2], 
+             xlab="time", ylim=range(data[[2]][which(is.finite(data[[2]]))], na.rm=TRUE))
         points(flags, col="red", pch=16)
-      }
+      
+        }
     }
     
   }
