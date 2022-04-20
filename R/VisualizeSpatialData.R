@@ -11,15 +11,15 @@
 PlotSuperFlame<-function(geodata, dir, Date, Site){
   
   B<-100 #Number of color breaks
-  colors<-bpy.colors(n=B, cutoff.tails=0.1, alpha=1)
+  colors<-bpy.colors(n = B, cutoff.tails=0.1, alpha=1)
   
   i=2
   for (i in 2:length(geodata@data)){
     if (is.numeric(geodata@data[,i])==TRUE){
       if (diff(range(geodata@data[,i], na.rm=T))>0){
         name<-names(geodata@data)[i]
-        a<-geodata[is.na(geodata@data[,i])==FALSE,]
-        a$Col <- as.numeric(cut(a@data[,i],breaks = B))
+        a <- geodata[is.finite(geodata@data[,i]),]
+        a$Col <- as.numeric(cut(a@data[,i], breaks = B))
         a$Color<-colors[a$Col]
         
         png(paste(dir, "/Maps/", name, Date, Site, ".png", sep=""), res=200, width=5,height=12, units="in")
