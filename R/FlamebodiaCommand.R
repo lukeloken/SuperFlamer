@@ -48,23 +48,25 @@ map_Mekong_north <- readRDS(file = file.path(onedrive_dir, 'SpatialData',
 #Load the flame directories
 home_path <- "C:/Users/lloken/OneDrive - DOI/Flamebodia/Data"
 
-#Jan 2022
+#Jan 2022 (Tonle Sap)
 dates_merge <- seq.Date(as.Date("2022-01-14"), as.Date("2022-01-22"), by = "day")
 maps <- list(map_big, map_upper, map_lower, map_confluence)
 
-#Feb 2022
+#Feb 2022 (Mekong River)
 dates_merge <- seq.Date(as.Date("2022-02-18"), as.Date("2022-02-25"), by = "day")
 maps <- list(map_Mekong_big, map_Mekong_south, map_Mekong_middle1, map_Mekong_middle2, map_Mekong_north)
 
-#April 2022
+#April 2022 (Tonle Sap)
 dates_merge <- seq.Date(as.Date("2022-04-04"), as.Date("2022-04-09"), by = "day")
 maps <- list(map_big, map_upper, map_lower, map_confluence)
 
-#Select directories by date are run.
+
+
+# Load directories
+# Select directories by date are run.
 directories_all <- list.files(home_path)
 directories_dates <- which(!is.na(as.Date(directories_all)) & as.Date(directories_all) %in% dates_merge)
 directories_torun <- file.path(home_path, directories_all[directories_dates])
-
 
 for(dir in directories_torun){
 # dir<-'C:/Users/lloken/OneDrive - DOI/Flamebodia/Data/2022-01-14_TonleSapNorthShore'
@@ -110,7 +112,7 @@ RunSuperFlame(dir, maps = maps, plotdiag = TRUE)
 
 #load merging scripts/functions
 source('R/MergeSampleTables.R')
-source('R/MergeMapTonleSapAll.R')
+source('R/MergeMap.R')
 
 home_path <- "C:/Users/lloken/OneDrive - DOI/Flamebodia/Data"
 
@@ -156,5 +158,5 @@ write.table(samples_merged, file = file.path(home_path, merge_name,
                                              row.names = FALSE, sep=",")
 
 #merge maps
-MergeMapTonleSapAll(home_path, directories_merge, merge_name, maps)
+MergeMap(home_path, directories_merge, merge_name, maps)
 
