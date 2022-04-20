@@ -7,7 +7,9 @@
 # 2) meta tables (.csv) from access (e.g., FlameMetaDate.csv)
 # dir<-'E:/Dropbox/FLAME_Light/Data/2017-06-27_LakeMendota'
 
-RunSuperFlame<-function(dir, ...){
+RunSuperFlame<-function(dir, maps, ...){
+  
+  message(paste("Running all superflame scripts. Started at ", Sys.time()))
   
   # Load functions
   source('R/MergeSuperFlameTables.R')
@@ -23,6 +25,7 @@ RunSuperFlame<-function(dir, ...){
   source('R/ConvertLatLongToDecimalDegree.R')
   source('R/MakeSuperFlameSpatialPoints.R')
   source('R/VisualizeSpatialData.R')
+  source('R/VisualizeSpatialDataGGmap.R')
   source('R/ExtractSampleData.R')
   
   # ###############
@@ -53,43 +56,43 @@ RunSuperFlame<-function(dir, ...){
   # ##############################
   
   #Get and merge all raw data
-  alldata<-ReadSuperFlame(dir)
+  alldata <- ReadSuperFlame(dir)
   
   #Cut data based on flame on/off times
-  cutdata<-CutSuperFlame(alldata, meta)
+  cutdata <- CutSuperFlame(alldata, meta)
   
   #Trim data to reduce number of columns
-  trimdata<-TrimSuperFlame(cutdata)
+  trimdata <- TrimSuperFlame(cutdata)
   
   #Load tau table and apply corrections
-  taufile<-list.files('Data')[grep(FLAME_Unit, list.files('Data'))]
+  taufile <- list.files('Data')[grep(FLAME_Unit, list.files('Data'))]
   if (length(taufile) != 1) {
     stop("'Data' does not contain Tau file for FLAME_Unit (e.g., 'Manual_Hydros_Taus_2017.01.csv') - Check FLAME_Unit on metafile")}
   tautable<-fread(paste('Data',taufile, sep="/"), sep=",", skip=0, header=T)
   
-  correctdata<-TauCorrectSuperFlame(trimdata, tautable, ...)
+  correctdata <- TauCorrectSuperFlame(trimdata, tautable, ...)
   
   # Convert CO2 and CH4 to uM and percent Saturation units 
-  convertdata<-ConvertGasesSuperFlame(trimdata, Elevation)
+  convertdata <- ConvertGasesSuperFlame(correctdata, Elevation)
   
   #Clean data using SensorQC
   rulefile<-list.files('Data')[grep('SensorQCRules', list.files('Data'))]
   if (length(rulefile) != 1) {
     stop("'Data' does not contain Tau file for FLAME_Unit (e.g., 'Manual_Hydros_Taus_2017.01.csv') - Check FLAME_Unit on metafile")}
-  ruletable<-fread(paste('Data',rulefile, sep="/"), sep=",", skip=0, header=T)
+  ruletable <- fread(paste('Data',rulefile, sep="/"), sep=",", skip=0, header=T)
   
-  cleandata<-CleanSuperFlame(convertdata, ruletable, ...)
+  cleandata <- CleanSuperFlame(convertdata, ruletable, ...)
   
   # ###########
   # Output Data
   # ###########
   
   # Create subfolders to put ProcessedData and Maps
-  folders<-list.files(dir)
-  if(length(folders[folders=="ProcessedData"])==0){
-    dir.create(paste(dir, "/ProcessedData", sep=""))}
-  if(length(folders[folders=="Maps"])==0){
-    dir.create(paste(dir, "/Maps", sep=""))}
+  folders <- list.files(dir)
+  if(length(folders[folders == "ProcessedData"]) == 0){
+    dir.create(file.path(dir, "ProcessedData"))}
+  if(length(folders[folders == "Maps"]) == 0){
+    dir.create(file.path(dir, "Maps"))}
   
   # Determine date and site and confirm they match between meta, directory, and datafiles
   
@@ -107,8 +110,8 @@ RunSuperFlame<-function(dir, ...){
     warning("Directory, Meta, and/or Data dates do not match")}
   
   # Site
-  DirSite<-tail(strings, n=1)
-  Site<-meta$Site[1]
+  DirSite <- tail(strings, n=1)
+  Site <- meta$Site[1]
   
   if (identical(Site, DirSite)==FALSE){
     warning("Directory and Meta SiteNames do not match")}
@@ -122,15 +125,24 @@ RunSuperFlame<-function(dir, ...){
   
   
   # Make a spatial points dataframe and save as a shapefile
-  geodata<-MakeSuperFlameSpatialPoints(trimdata)
+  geodata <- MakeSuperFlameSpatialPoints(trimdata)
   writeOGR(geodata, dsn=paste(dir, "/ProcessedData", sep="") ,layer=as.character(paste(Date, "_", Site, "_06_ShapefileRaw", sep="")), driver="ESRI Shapefile",  verbose=F, overwrite=T)
   
   geodataclean<-MakeSuperFlameSpatialPoints(cleandata)
   writeOGR(geodataclean, dsn=paste(dir, "/ProcessedData", sep="") ,layer=as.character(paste(Date, "_", Site, "_07_ShapefileCleaned", sep="")), driver="ESRI Shapefile",  verbose=F, overwrite=T)
   
+  saveRDS(geodataclean, file.path(dir, 
+                                  "ProcessedData", 
+                                  paste0(Date, "_", Site, "_09_geoclean.rds")))
+  
+  saveRDS(geodata, file.path(dir, 
+                             "ProcessedData", 
+                             paste0(Date, "_", Site, "_09_georaw.rds")))
+  
   
   # Visualize Data
   PlotSuperFlame(geodataclean, dir, Date, Site)
+  PlotSuperFlameGGmap(geodataclean, dir, Date, Site, meta, maps)
   
   # Extract Sample Data
   samplefile<-list.files(rawdir)[grep('FlameSamples', list.files(rawdir))]
@@ -139,10 +151,12 @@ RunSuperFlame<-function(dir, ...){
     }  else {
     sample<-fread(paste(rawdir, samplefile, sep="/"), sep=",", skip=0, header=T)
     sample<-subset(sample, !is.na(as.POSIXct(sample$`Sample Time`, format="%H:%M:%S")))
-    sampledata<-ExtractSample(cleandata, sample, dir, Date, tz)
+    sampledata<-ExtractSample(cleandata, alldata, sample, dir, Date, tz)
     
     write.table(sampledata, file = as.character(paste(dir, '/ProcessedData/', Date, "_", Site, "_08_Samples.csv", sep="")), col.names=TRUE,row.names=F, sep=",")
   }
 
+  message(paste("Finished all superflame scripts. Ended at ", Sys.time()))
+  
   
 }
