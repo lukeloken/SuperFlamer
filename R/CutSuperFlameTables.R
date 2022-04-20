@@ -82,10 +82,11 @@ CutSuperFlame<-function(alldata, meta){
       
       #Checks
       df_check_out <- df_check_i %>%
-        mutate(pass = ifelse(!is.na(date_i) &
+        mutate(pass = ifelse(is.na(n_commas_i), TRUE, 
+                             ifelse(!is.na(date_i) &
                                is.finite(second_string_i * fourth_string_i * sixth_string_i) &
                                last_string_i == "Disabled",
-                             TRUE, FALSE)) %>%
+                             TRUE, FALSE))) %>%
         pull(pass)
       
       cutdata[which(df_check_out == FALSE) ,
