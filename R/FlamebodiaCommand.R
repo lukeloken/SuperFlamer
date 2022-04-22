@@ -50,15 +50,19 @@ home_path <- "C:/Users/lloken/OneDrive - DOI/Flamebodia/Data"
 
 #Jan 2022 (Tonle Sap)
 dates_merge <- seq.Date(as.Date("2022-01-14"), as.Date("2022-01-22"), by = "day")
-maps <- list(map_big, map_upper, map_lower, map_confluence)
+maps <- list(map_big, map_upper, 
+             map_lower, map_confluence)
 
 #Feb 2022 (Mekong River)
 dates_merge <- seq.Date(as.Date("2022-02-18"), as.Date("2022-02-25"), by = "day")
-maps <- list(map_Mekong_big, map_Mekong_south, map_Mekong_middle1, map_Mekong_middle2, map_Mekong_north)
+maps <- list(map_Mekong_big, map_Mekong_south, 
+             map_Mekong_middle1, map_Mekong_middle2, 
+             map_Mekong_north)
 
 #April 2022 (Tonle Sap)
 dates_merge <- seq.Date(as.Date("2022-04-04"), as.Date("2022-04-09"), by = "day")
-maps <- list(map_big, map_upper, map_lower, map_confluence)
+maps <- list(map_big, map_upper, 
+             map_lower, map_confluence)
 
 
 
@@ -116,7 +120,7 @@ source('R/MergeMap.R')
 
 home_path <- "C:/Users/lloken/OneDrive - DOI/Flamebodia/Data"
 
-merge_name <- "Merged_TonleSap_April_2022"
+merge_name <- "Merged_TonleSap_Apr_2022"
 dates_merge <- seq.Date(as.Date("2022-04-04"), as.Date("2022-04-09"), by = "day")
 dir.create(file.path(home_path, merge_name), showWarnings = FALSE)
 
@@ -128,7 +132,7 @@ merge_name <- "Merged_Mekong_Feb_2022"
 dates_merge <- seq.Date(as.Date("2022-02-18"), as.Date("2022-02-25"), by = "day")
 dir.create(file.path(home_path, merge_name), showWarnings = FALSE)
 
-merge_name <- "Merged_TonleSap_January_2022"
+merge_name <- "Merged_TonleSap_Jan_2022"
 dates_merge <- seq.Date(as.Date("2022-01-14"), as.Date("2022-01-22"), by = "day")
 dir.create(file.path(home_path, merge_name), showWarnings = FALSE)
 
