@@ -17,16 +17,16 @@ ReadSuperFlame <- function(dir){
   # Load files in this order
   patterns <- c('GPS', 'Public', 'EXO', 'GGA', 'SUNA', 'Turner', 'EchoMap')
   loadfiles <- c(files[grep(patterns[1], files)],
-                files[grep(patterns[2], files)],
-                files[grep(patterns[3], files)],
-                files[grep(patterns[4], files)],
-                files[grep(patterns[5], files)],
-                files[grep(patterns[6], files)],
-                files[grep(patterns[7], files)])
+                 files[grep(patterns[2], files)],
+                 files[grep(patterns[3], files)],
+                 files[grep(patterns[4], files)],
+                 files[grep(patterns[5], files)],
+                 files[grep(patterns[6], files)],
+                 files[grep(patterns[7], files)])
   
   # patterns <- c('Public')
   # loadfiles <- c(files[grep(patterns[1], files)])
-                 
+  
   
   if (length(loadfiles) == 0) {
     stop("'dir/RawData' does not contain correct files (e.g., '..._GPS.dat')")}
@@ -40,21 +40,36 @@ ReadSuperFlame <- function(dir){
   for (df in 1:length(import.list)){
     names(import.list[[df]])<- names(header.list[[df]])
   }
-
-  #Omit 'Records' column
+  
+  # Omit 'Records' column
   import.list <- lapply(import.list, function(l) l[,-c('RECORD')])
-
-public.df <-  import.list[[grep("Public", loadfiles)]] 
-
-import.list[[grep("Public", loadfiles)]] <- import.list[[grep("Public", loadfiles)]]   %>%
-  select(TIMESTAMP, contains("String"), contains("status")) %>%
-  select(-data_status) %>%
-  mutate(TIMESTAMP = round_date(TIMESTAMP, "secs")) %>%
-  group_by(TIMESTAMP) %>%
-  mutate(across(everything(), ~unique(.x)[1])) %>%
-  ungroup()
-
-
+  
+  #Check for names of columns. Use public only if table is missing
+  names(import.list)
+  nonpublic.names <- lapply(import.list[-grep("Public", loadfiles)], 
+                            function(l) names(l)) %>%
+    unlist() %>%
+    unique()
+  
+  #Drop TIMESTAMP as this is the merger name
+  nonpublic.names <- nonpublic.names[-which(nonpublic.names == "TIMESTAMP")]
+  
+  public.df <-  import.list[[grep("Public", loadfiles)]] 
+  
+  public.names <- names(public.df)
+  
+  drop_names <- intersect(public.names, nonpublic.names)
+  
+  import.list[[grep("Public", loadfiles)]] <- import.list[[grep("Public", loadfiles)]]   %>%
+    # select(TIMESTAMP, contains("String"), contains("status")) %>%
+    # select(-data_status) %>%
+    select(-drop_names) %>%
+    mutate(TIMESTAMP = round_date(TIMESTAMP, "secs")) %>%
+    group_by(TIMESTAMP) %>%
+    mutate(across(everything(), ~unique(.x)[1])) %>%
+    ungroup()
+  
+  
   
   #Merge datatables using TIMESTAMP
   my.df <- Reduce(function(x, y) full_join(x, y, by = "TIMESTAMP"), 
@@ -70,7 +85,7 @@ import.list[[grep("Public", loadfiles)]] <- import.list[[grep("Public", loadfile
   # my.df[,c('longitude', 'latitude')]<-lapply(my.df[,c('longitude', 'latitude')], ConvertToDD)
   
   return(my.df)
-
+  
 }
 
 
