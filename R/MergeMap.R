@@ -15,6 +15,7 @@ MergeMap <- function(home_path,
   library(viridis)
   library(maptools)
   library(ggsn)
+  library(spdplyr)
   
   #How many maps are there?
   seq_maps <- paste0("Maps", seq_along(maps)+1)
@@ -24,9 +25,10 @@ MergeMap <- function(home_path,
     message("No ggmap basemap provided")
   } else if(length(seq_maps) > 0){
     
-    #Create a directory for each basemap
+    #Create a directory for each basemap and the shapefiles
     sapply(seq_maps, function(x) dir.create(file.path(home_path, merge_name, x),
                                             showWarnings = FALSE))
+    dir.create(file.path(home_path, merge_name, "Shapefiles"), showWarnings = FALSE)
     
     #Read and merge shapefiles
     geo_list <- list()
@@ -35,12 +37,36 @@ MergeMap <- function(home_path,
       files_i <- list.files(file.path(home_path, directories_merge[geoclean_i], "ProcessedData"), 
                             full.names = TRUE)
       file_load <- files_i[grepl("geoclean.rds", files_i)]
-      geo_list[[geoclean_i]] <- readRDS(file_load)
+      geo_list[[geoclean_i]] <- st_as_sf(readRDS(file_load))
     }
     
-    # geo_merge <-  rbind(geo_list[[1]], geo_list[[2]])
-    # 
-    geo_merge <- do.call(rbind, geo_list) 
+    geo_sf <-  bind_rows(geo_list)
+
+    geo_merge <- as(geo_sf, Class = "Spatial") %>%
+      mutate(latitude = st_coordinates(geo_sf)[,2], 
+             longitude = st_coordinates(geo_sf)[,1])
+    
+    # Old way. Fails if columns are mismatched
+    # geo_merge <- do.call(rbind, geo_list) 
+    
+    
+    geo_location <- geo_merge %>%
+      dplyr::select(date_time)
+    
+    writeOGR(geo_merge, dsn = file.path(home_path, merge_name, "Shapefiles"),
+             layer = as.character(paste(merge_name, "_", "Shapefile_AllData", sep="")),
+             driver="ESRI Shapefile",  verbose = FALSE, overwrite = TRUE)
+    
+    writeOGR(geo_location, dsn = file.path(home_path, merge_name, "Shapefiles"),
+             layer = as.character(paste(merge_name, "_", "Shapefile_DateTime", sep="")),
+             driver="ESRI Shapefile",  verbose = FALSE, overwrite = TRUE)
+    
+
+    saveRDS(geo_merge, file.path(home_path, merge_name, "Shapefiles",
+                                 paste0(merge_name, "_", "Shapefile_AllData.rds")))
+
+    saveRDS(geo_location, file.path(home_path, merge_name, "Shapefiles",
+                                    paste0(merge_name, "_", "Shapefile_DateTime.rds")))
     
     
     color.palette = colorRampPalette(c(viridis(6, begin=.1, end=.98), 
@@ -66,11 +92,12 @@ MergeMap <- function(home_path,
     var_i=1
     #Loop through geodata and plot each variable
     for (var_i in 1:length(plotvars_i)){
-      name<-plotvars_i[var_i]
-      if (is.numeric(geo_merge@data[,name])==TRUE){
-        a <- geo_merge[!is.na(geo_merge@data[,name]),]
-        a_range <- range(a@data[,name], na.rm = TRUE)
-        a_1_99tile <- quantile(a@data[,name], probs = c(.1,.99))
+      name <- plotvars_i[var_i]
+      if (is.numeric(as.data.frame(geo_merge@data)[,name]) == TRUE){
+        
+        a <- geo_merge[!is.na(as.data.frame(geo_merge@data)[,name]),]
+        a_range <- range(as.data.frame(a@data)[,name], na.rm = TRUE)
+        a_1_99tile <- quantile(as.data.frame(a@data)[,name], probs = c(.1,.99))
         if (nrow(a)>0){
           
           commonTheme_map<-list(
@@ -127,7 +154,10 @@ MergeMap <- function(home_path,
                 #          transform = TRUE, model = "WGS84") +
                 commonTheme_map 
               
-              if (grepl("CH4", name) | grepl("chlor", name) | grepl("turb", name)){
+              if (grepl("CH4", name) | 
+                  grepl("CO2", name) | 
+                  grepl("chlor", name) | 
+                  grepl("turb", name)){
                 map <- map +
                   scale_colour_gradientn(colours = color.palette(n=100), 
                                          # limits=range(a@data[,name], na.rm=T), 
