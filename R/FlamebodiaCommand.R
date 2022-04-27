@@ -136,7 +136,7 @@ merge_name <- "Merged_TonleSap_Jan_2022"
 dates_merge <- seq.Date(as.Date("2022-01-14"), as.Date("2022-01-22"), by = "day")
 dir.create(file.path(home_path, merge_name), showWarnings = FALSE)
 
-merge_name <- "Merged_TonleSap_JanuaryApril_2022"
+merge_name <- "Merged_Mekong_TonleSap_JanApr_2022"
 dates_merge <- seq.Date(as.Date("2022-01-14"), as.Date("2022-04-09"), by = "day")
 dir.create(file.path(home_path, merge_name), showWarnings = FALSE)
 
