@@ -142,7 +142,7 @@ RunSuperFlame<-function(dir, maps, ...){
   
   # Visualize Data
   PlotSuperFlame(geodataclean, dir, Date, Site)
-  PlotSuperFlameGGmap(geodataclean, dir, Date, Site, meta, maps)
+  PlotSuperFlameGGmap(geodataclean, dir, Date, Site, meta, maps, ...)
   
   # Extract Sample Data
   samplefile<-list.files(rawdir)[grep('FlameSamples', list.files(rawdir))]
