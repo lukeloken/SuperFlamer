@@ -4,7 +4,9 @@
 MergeMap <- function(home_path, 
                      directories_merge,
                      merge_name,
-                     maps){
+                     maps, 
+                     legend = "bottomleft", 
+                     plot_title = ""){
   
   library(rgdal)
   library(sp)
@@ -69,15 +71,19 @@ MergeMap <- function(home_path,
                                     paste0(merge_name, "_", "Shapefile_DateTime.rds")))
     
     
+    # color.palette = colorRampPalette(c(viridis(6, begin=.1, end=.98),
+    #                                    rev(magma(5, begin=.25, end=.98))),
+    #                                  bias=1)
+    
     color.palette = colorRampPalette(c(viridis(6, begin=.1, end=.98), 
-                                       rev(magma(5, begin=.25, end=.98))), 
+                                       rev(magma(5, begin=.4, end=.98))), 
                                      bias=1)
     
     # Choose plot variables as of Jan 2022
     # Chosen for Flamebodia
     plotvars <- c("CH4_Dry", "CO2_Dry", "H2O",
                   "CH4uM", "CH4Sat", "CO2uM", "CO2Sat",
-                  "no3_uM", "abs254", "abs350",
+                  "no3_uM", "nn03_mg", "abs254", "abs350",
                   "temp", "specCond", "pH", "pressure",
                   "chlor_RFU", "ODO_percent", "ODO_mgL",
                   "BGApc_RFU", "turb_FNU",
@@ -88,8 +94,21 @@ MergeMap <- function(home_path,
     #Identify variables in dataset to plot  
     plotvars_i<-intersect(plotvars, names(geo_merge))
     
+    if (legend == "bottomleft"){
+      loc <- c(.02, .04)
+      just <- c(0,0)
+    } else if (legend == "topleft"){
+      loc <- c(.02, .87)
+      just <- c(0,0)
+    } else if (legend == "topright"){
+      loc <- c(.98, .87)
+      just <- c(0,0)
+    } else if (legend == "bottomright"){
+      loc <- c(.98, .04)
+      just <- c(0,0)
+    }
     
-    var_i=1
+    var_i=12
     #Loop through geodata and plot each variable
     for (var_i in 1:length(plotvars_i)){
       name <- plotvars_i[var_i]
@@ -106,13 +125,15 @@ MergeMap <- function(home_path,
                   axis.title.y=element_blank(), 
                   axis.title.x=element_blank(), 
                   axis.ticks=element_blank(), 
-                  plot.margin = unit(c(0, 0, 0, 0), "cm")),
+                  plot.margin = unit(c(0, 0, 0, 0), "cm"), 
+                  plot.title = element_text(hjust = 0.5)),
+            ggtitle(plot_title),
             # scale_colour_gradientn(colours = color.palette(n=100), 
             #                        limits=range(a@data[,name], na.rm=T)),
             scale_colour_gradientn(colours = color.palette(n=100), 
                                    limits=a_1_99tile, oob = scales::squish),
-            theme(legend.position = c(.02, .08), 
-                  legend.justification = c(0,0), 
+            theme(legend.position = loc, 
+                  legend.justification = just, 
                   legend.background = element_rect(fill = 'white', colour='black'),
                   legend.text=element_text(size=8),
                   legend.title=element_text(size=10), 
@@ -171,7 +192,7 @@ MergeMap <- function(home_path,
                                paste0(merge_name, '_', min(dates_merge),
                                       "_to_", max(dates_merge),
                                       "_", name, ".png")), 
-                     map, width = 6, height = 6, units = "in")
+                     map, width = 6, height = 6.1, units = "in")
               
             }
           }
