@@ -8,7 +8,8 @@
 # ##############################################################
 
 
-PlotSuperFlameGGmap<-function(geodata, dir, Date, Site, meta, maps){
+PlotSuperFlameGGmap<-function(geodata, dir, Date, Site, meta, maps, 
+                              plotdiag = FALSE, legend = "bottomleft"){
   
   library(rgdal)
   library(sp)
@@ -60,6 +61,12 @@ PlotSuperFlameGGmap<-function(geodata, dir, Date, Site, meta, maps){
         
         if (nrow(a)>0){
           
+          if (legend == "lowerleft"){
+            loc <- c(.02, .04)
+          } else if (legend == "topleft"){
+            loc <- c(.02, .85)
+          }
+          
           commonTheme_map<-list(
             theme(axis.text.x=element_blank(), 
                   axis.text.y=element_blank(), 
@@ -69,7 +76,7 @@ PlotSuperFlameGGmap<-function(geodata, dir, Date, Site, meta, maps){
                   plot.margin = unit(c(0, 0, 0, 0), "cm")),
             scale_colour_gradientn(colours = color.palette(n=100), 
                                    limits=range(a@data[,name], na.rm=T)),
-            theme(legend.position = c(.02, .04), 
+            theme(legend.position = loc, 
                   legend.justification = c(0,0), 
                   legend.background = element_rect(fill = 'white', colour='black'),
                   legend.text=element_text(size=8),
