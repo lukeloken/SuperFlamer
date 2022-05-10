@@ -84,6 +84,8 @@ ReadSuperFlame <- function(dir){
   # Set Lat/Long to decimal degrees rather than ddmm.mmmm (likely delete after July 5, 2017)
   # my.df[,c('longitude', 'latitude')]<-lapply(my.df[,c('longitude', 'latitude')], ConvertToDD)
   
+
+
   return(my.df)
   
 }
