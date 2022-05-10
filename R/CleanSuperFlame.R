@@ -13,7 +13,8 @@ library(dplyr)
 # install_github('USGS-R/sensorQC')
 library(sensorQC)
 
-CleanSuperFlame<-function(convertdata, ruletable, plotdiag=FALSE){
+CleanSuperFlame<-function(convertdata, ruletable, 
+                          plotdiag = FALSE, legend = FALSE){
   
   # ==========================================================
   # Function to clean multiple parameters of a dataframe
