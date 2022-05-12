@@ -33,7 +33,7 @@ RunSuperFlame<-function(dir, maps, ...){
   # ###############
   
   rawdir<-paste(dir, 'RawData', sep="/")
-  metafile<-list.files(rawdir)[grep('FlameMeta', list.files(rawdir))]
+  metafile <- list.files(rawdir)[grep('FlameMeta', list.files(rawdir))]
   
   if (length(metafile) != 1) {
     stop("'dir/RawData' does not contain one FlameMeta file (e.g., 'FlameMetaDate.csv')")}
