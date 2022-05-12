@@ -40,7 +40,7 @@ map_lower <- readRDS(file = file.path(onedrive_dir, 'SpatialData',
 home_path <- "C:/Users/lloken/OneDrive - DOI/FLAMeIllinois/Data"
 
 #May 2022 (Illinois)
-dates_merge <- seq.Date(as.Date("2022-05-02"), as.Date("2022-05-09"), by = "day")
+dates_merge <- seq.Date(as.Date("2022-05-02"), as.Date("2022-05-07"), by = "day")
 maps <- list(map_big, map_upper, map_middle, map_lower)
 
 
@@ -49,8 +49,8 @@ maps <- list(map_big, map_upper, map_middle, map_lower)
 directories_all <- list.files(home_path)
 directories_dates <- which(!is.na(as.Date(directories_all)) & as.Date(directories_all) %in% dates_merge)
 directories_torun <- file.path(home_path, directories_all[directories_dates])
-directories_torun <- directories_torun[3:6]
-dir = directories_torun[4]
+directories_torun <- directories_torun[6]
+# dir = directories_torun[4]
 for(dir in directories_torun){
 # dir<-'C:/Users/lloken/OneDrive - DOI/Flamebodia/Data/2022-01-14_TonleSapNorthShore'
 # dir<-'C:/Users/lloken/OneDrive - DOI/Flamebodia/Data/2022-01-15_TonleSapNorthBasin'
