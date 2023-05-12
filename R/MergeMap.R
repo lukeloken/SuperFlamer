@@ -17,7 +17,7 @@ MergeMap <- function(home_path,
   library(viridis)
   library(maptools)
   library(ggsn)
-  library(spdplyr)
+  # library(spdplyr)
   
   #How many maps are there?
   seq_maps <- paste0("Maps", seq_along(maps)+1)
@@ -44,16 +44,27 @@ MergeMap <- function(home_path,
     
     geo_sf <-  bind_rows(geo_list)
 
-    geo_merge <- as(geo_sf, Class = "Spatial") %>%
-      mutate(latitude = st_coordinates(geo_sf)[,2], 
-             longitude = st_coordinates(geo_sf)[,1])
+    geo_merge <- as(geo_sf, Class = "Spatial")
+    geo_merge$latitude = st_coordinates(geo_sf)[,2]
+    geo_merge$longitude = st_coordinates(geo_sf)[,1]
+    
     
     # Old way. Fails if columns are mismatched
     # geo_merge <- do.call(rbind, geo_list) 
     
     
-    geo_location <- geo_merge %>%
+    geo_location <- geo_merge 
+    geo_location@data <- geo_merge@data %>%
       dplyr::select(date_time)
+    
+
+    geo_chla <- geo_merge 
+    geo_chla@data <- geo_merge@data %>%
+      dplyr::select(date_time, temp, ODO_percent, ODO_mgL, chlor_RFU)
+    
+    write.csv(geo_merge@data,
+              file.path(home_path, merge_name, paste0(merge_name, "_FLAMeAllData.csv")), 
+              row.names = FALSE)
     
     writeOGR(geo_merge, dsn = file.path(home_path, merge_name, "Shapefiles"),
              layer = as.character(paste(merge_name, "_", "Shapefile_AllData", sep="")),
@@ -63,12 +74,20 @@ MergeMap <- function(home_path,
              layer = as.character(paste(merge_name, "_", "Shapefile_DateTime", sep="")),
              driver="ESRI Shapefile",  verbose = FALSE, overwrite = TRUE)
     
+    writeOGR(geo_chla, dsn = file.path(home_path, merge_name, "Shapefiles"),
+             layer = as.character(paste(merge_name, "_", "Shapefile_Chlor", sep="")),
+             driver="ESRI Shapefile",  verbose = FALSE, overwrite = TRUE)
+    
 
     saveRDS(geo_merge, file.path(home_path, merge_name, "Shapefiles",
                                  paste0(merge_name, "_", "Shapefile_AllData.rds")))
 
     saveRDS(geo_location, file.path(home_path, merge_name, "Shapefiles",
                                     paste0(merge_name, "_", "Shapefile_DateTime.rds")))
+    
+    saveRDS(geo_chla, file.path(home_path, merge_name, "Shapefiles",
+                                    paste0(merge_name, "_", "Shapefile_Chlor.rds")))
+    
     
     
     # color.palette = colorRampPalette(c(viridis(6, begin=.1, end=.98),
@@ -79,16 +98,37 @@ MergeMap <- function(home_path,
                                        rev(magma(5, begin=.4, end=.98))), 
                                      bias=1)
     
-    # Choose plot variables as of Jan 2022
-    # Chosen for Flamebodia
-    plotvars <- c("CH4_Dry", "CO2_Dry", "H2O",
-                  "CH4uM", "CH4Sat", "CO2uM", "CO2Sat",
-                  "no3_uM", "nn03_mg", "abs254", "abs350",
-                  "temp", "specCond", "pH", "pressure",
-                  "chlor_RFU", "ODO_percent", "ODO_mgL",
-                  "BGApc_RFU", "turb_FNU",
-                  "fDOM_RFU", "tds", 
-                  "depth", "cdom_volt", "peakT_volt" )
+    # Choose plot variables as of Jan 2022 updated in Nov 2022
+    # Chosen for Flamebodia and FlameIllinois
+
+    plotvars <- c("CH4_Dry", "CO2_Dry", 
+                  "CH4uM", "CH4Sat", 
+                  "CO2uM", "CO2Sat",
+                  "H2O", "barom_mmHg",
+                  "no3_uM", "nn03_mg", 
+                  "NO3_uM", "NO3_mgL", 
+                  "abs254", "abs350",
+                  "water_temp", "depth",
+                  "temp", "specCond", 
+                  "pH", "pressure",
+                  "chlor_RFU", "chlor_ugL",
+                  "ODO_percent", "ODO_mgL",
+                  "BGApc_RFU", "BGApc_ugL", 
+                  "turb_FNU", 
+                  "fDOM_RFU", "fDOM_QSU",
+                  "cdom_volt", "peakT_volt", 
+                  "Turb_C6P", "CDOM_C6P", 
+                  "CHL_a_C6P","Brightners",
+                  "Fluorescein","Ref_Fuel",
+                  "Temp_C6P",
+                  "CDOM_C6P_wt", "CDOM_C6P_turb",
+                  "CHL_a_C6P_wt", "CHL_a_C6P_turb",
+                  "Brightners_wt", "Brightners_turb",
+                  "Fluorescein_wt", "Fluorescein_turb",
+                  "Ref_Fuel_wt", "Ref_Fuel_turb",
+                  "FP_Trans", "FP_GreenAlgae",
+                  "FP_BlueGreen", "FP_Diatoms",
+                  "FP_Cryptophyta", "FP_YellowSubs")
     
     
     #Identify variables in dataset to plot  
@@ -125,7 +165,7 @@ MergeMap <- function(home_path,
                   axis.title.y=element_blank(), 
                   axis.title.x=element_blank(), 
                   axis.ticks=element_blank(), 
-                  plot.margin = unit(c(0, 0, 0, 0), "cm"), 
+                  plot.margin = unit(c(.2, 0, 0, 0), "cm"), 
                   plot.title = element_text(hjust = 0.5)),
             ggtitle(plot_title),
             # scale_colour_gradientn(colours = color.palette(n=100), 
