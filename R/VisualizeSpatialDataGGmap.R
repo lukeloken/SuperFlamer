@@ -9,7 +9,8 @@
 
 
 PlotSuperFlameGGmap<-function(geodata, dir, Date, Site, meta, maps, 
-                              plotdiag = FALSE, legend = "bottomleft"){
+                              bad_data = NULL,
+                              plotdiag = FALSE, legend = "lowerleft"){
   
   library(rgdal)
   library(sp)
@@ -33,21 +34,42 @@ PlotSuperFlameGGmap<-function(geodata, dir, Date, Site, meta, maps,
     # dir.create(file.path(dir, "Maps2"), showWarnings = F)
     # dir.create(file.path(dir, "Maps3"), showWarnings = F)
     
-
+    
     color.palette = colorRampPalette(c(viridis(6, begin=.1, end=.98), 
                                        rev(magma(5, begin=.25, end=.98))), 
                                      bias=1)
-
+    
     # Choose plot variables as of Jan 2022
-    # Chosen for Flamebodia
-    plotvars <- c("CH4_Dry", "CO2_Dry", "H2O",
-                  "CH4uM", "CH4Sat", "CO2uM", "CO2Sat",
-                  "no3_uM", "abs254", "abs350",
-                  "temp", "specCond", "pH", "pressure",
+    # Chosen for Flamebodia and FLAMeIllinois
+    plotvars <- c("CH4_Dry", "CO2_Dry", 
+                  "CH4uM", "CH4Sat", 
+                  "CO2uM", "CO2Sat",
+                  "H2O", "barom_mmHg",
+                  "no3_uM", "nn03_mg", 
+                  "NO3_uM", "NO3_mgL", 
+                  "abs254", "abs350",
+                  "water_temp", "depth",
+                  "temp", "specCond", 
+                  "pH", "pressure",
+                  "chlor_RFU", "chlor_ugL",
                   "ODO_percent", "ODO_mgL",
-                  "chlor_RFU", "BGApc_RFU", "turb_FNU",
-                  "fDOM_RFU", "tds", 
-                  "depth", "cdom_volt", "peakT_volt" )
+                  "BGApc_RFU", "BGApc_ugL", 
+                  "turb_FNU", 
+                  "fDOM_RFU", "fDOM_QSU",
+                  "cdom_volt", "peakT_volt", 
+                  "Turb_C6P", "CDOM_C6P", 
+                  "CHL_a_C6P","Brightners",
+                  "Fluorescein","Ref_Fuel",
+                  "Temp_C6P",  
+                  "CDOM_C6P_wt", "CDOM_C6P_turb",
+                  "CHL_a_C6P_wt", "CHL_a_C6P_turb",
+                  "Brightners_wt", "Brightners_turb",
+                  "Fluorescein_wt", "Fluorescein_turb",
+                  "Ref_Fuel_wt", "Ref_Fuel_turb",
+                  "FP_Trans", "FP_GreenAlgae",
+                  "FP_BlueGreen", "FP_Diatoms",
+                  "FP_Cryptophyta", "FP_YellowSubs")
+    
     
     #Identify variables in dataset to plot  
     plotvars_i<-intersect(plotvars, names(geodata))
@@ -58,7 +80,8 @@ PlotSuperFlameGGmap<-function(geodata, dir, Date, Site, meta, maps,
       name<-plotvars_i[var_i]
       if (is.numeric(geodata@data[,name])==TRUE){
         a <- geodata[!is.na(geodata@data[,name]),]
-        
+        a_range <- range(as.data.frame(a@data)[,name], na.rm = TRUE)
+        a_1_99tile <- quantile(as.data.frame(a@data)[,name], probs = c(.1,.99))
         if (nrow(a)>0){
           
           if (legend == "lowerleft"){
@@ -75,7 +98,7 @@ PlotSuperFlameGGmap<-function(geodata, dir, Date, Site, meta, maps,
                   axis.ticks=element_blank(), 
                   plot.margin = unit(c(0, 0, 0, 0), "cm")),
             scale_colour_gradientn(colours = color.palette(n=100), 
-                                   limits=range(a@data[,name], na.rm=T)),
+                                   limits=a_1_99tile, oob = scales::squish),
             theme(legend.position = loc, 
                   legend.justification = c(0,0), 
                   legend.background = element_rect(fill = 'white', colour='black'),
@@ -108,9 +131,13 @@ PlotSuperFlameGGmap<-function(geodata, dir, Date, Site, meta, maps,
                 commonTheme_map 
               
               if (grepl("CH4", name) | grepl("chlor", name) | grepl("turb", name)){
-                map <- map +
-                  scale_colour_gradientn(colours = color.palette(n=100), 
-                                         limits=range(a@data[,name], na.rm=T), trans = "log10")
+                if(min(a_1_99tile)>0){
+                  map <- map +
+                    scale_colour_gradientn(colours = color.palette(n=100), 
+                                           # limits=range(a@data[,name], na.rm=T), 
+                                           limits=a_1_99tile, oob = scales::squish,
+                                           trans = "log10")
+                }
               }
               
               # print(map)
