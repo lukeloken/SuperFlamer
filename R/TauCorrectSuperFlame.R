@@ -6,6 +6,7 @@
 require(caTools)
 
 TauCorrectSuperFlame<-function(trimdata, tautable,  
+                               bad_data = NULL,
                                plotdiag = FALSE, legend = FALSE){
   
   # Using Manual Fit Taus
@@ -16,10 +17,12 @@ TauCorrectSuperFlame<-function(trimdata, tautable,
   
   column=8 #variable number. var=9 is typically first for SuperFlame data 
   
-  for (column in 8:ncol(trimdata)){
+  for (column in 1:ncol(trimdata)){
     X<-trimdata[[column]]
-    name<-names(trimdata)[column]
-    if (class(X)=='numeric' & length(which(is.finite(X)==T))>1 & is.element(name, names(tautable))){
+    name <- names(trimdata)[column]
+    if (class(X)[1] == 'numeric' & 
+        length(which(is.finite(X) == TRUE)) > 1 & 
+        is.element(name, names(tautable))){
       
       col_number<-which(names(tautable) == as.character(name))
       hydro<-unlist(round(tautable[1,col_number, with=FALSE]))
@@ -42,7 +45,7 @@ TauCorrectSuperFlame<-function(trimdata, tautable,
       
       ylim=extendrange(X[is.finite(X)], f=0.05)
       
-      if(plotdiag==TRUE){
+      if(plotdiag == TRUE){
         plot(Tau_X, col="blue", type="l", ylim=ylim, main=paste(name), xlab="time (s)", ylab=name)
         points(lag, col="red", type="l")
         points(X, col="black", type="l")
