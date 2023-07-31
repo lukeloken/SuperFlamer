@@ -7,9 +7,16 @@
 # 2) meta tables (.csv) from access (e.g., FlameMetaDate.csv)
 # dir<-'E:/Dropbox/FLAME_Light/Data/2017-06-27_LakeMendota'
 
-RunSuperFlame<-function(dir, maps, ...){
+# plotdiag = TRUE, 
+# legend = "topleft", 
+# bad_data = bad_data
+
+RunSuperFlame<-function(dir, maps, bad_data = NULL, ...){
   
   message(paste("Running all superflame scripts. Started at ", Sys.time()))
+  
+  cat("\n\n", dir, "\n", "Superflame scripts Started at:", Sys.time(), "\n" )
+  
   
   # Load functions
   source('R/MergeSuperFlameTables.R')
@@ -27,6 +34,8 @@ RunSuperFlame<-function(dir, maps, ...){
   source('R/VisualizeSpatialData.R')
   source('R/VisualizeSpatialDataGGmap.R')
   source('R/ExtractSampleData.R')
+  source('R/TurnerTempTurbCorrect.R')
+  source("R/RemoveErroneousData.R")
   
   # ###############
   # Find meta table
@@ -64,24 +73,46 @@ RunSuperFlame<-function(dir, maps, ...){
   #Trim data to reduce number of columns
   trimdata <- TrimSuperFlame(cutdata)
   
+  correctdata <- RemoveErroneousData(trimdata, bad_data = bad_data)
+  
+  
+  if(as.Date(min(correctdata$DateTime, na.rm = TRUE)) > "2023-07-09" & 
+     as.Date(max(correctdata$DateTime, na.rm = TRUE)) < "2023-07-20"){
+    #change fluorescein during last Illinois River camapgin. Calibration was 10%
+    correctdata$Fluorescein <- correctdata$Fluorescein * 10
+    
+  }
+  
+  correctdata <- TurnerTempTurbCorrect(correctdata, var = "CDOM_C6P", 
+                                       rho = 0.01, alpha = 0.006, temp = 25)
+  correctdata <- TurnerTempTurbCorrect(correctdata, var = "CHL_a_C6P",
+                                       rho = 0.01, alpha = NULL, temp = 25)
+  correctdata <- TurnerTempTurbCorrect(correctdata, var = "Brightners",
+                                       rho = 0.014, alpha = NULL, temp = 25)
+  correctdata <- TurnerTempTurbCorrect(correctdata, var = "Fluorescein",
+                                       rho = 0.009, alpha = NULL, temp = 25)
+  correctdata <- TurnerTempTurbCorrect(correctdata, var = "Ref_Fuel",
+                                       rho = 0.0085, alpha = NULL, temp = 25)
+  
+  
   #Load tau table and apply corrections
   taufile <- list.files('Data')[grep(FLAME_Unit, list.files('Data'))]
   if (length(taufile) != 1) {
     stop("'Data' does not contain Tau file for FLAME_Unit (e.g., 'Manual_Hydros_Taus_2017.01.csv') - Check FLAME_Unit on metafile")}
-  tautable<-fread(paste('Data',taufile, sep="/"), sep=",", skip=0, header=T)
+  tautable <- fread(paste('Data', taufile, sep="/"), sep=",", skip=0, header=T)
   
-  correctdata <- TauCorrectSuperFlame(trimdata, tautable, ...)
+  taucorrectdata <- TauCorrectSuperFlame(correctdata, tautable, ...)
   
   # Convert CO2 and CH4 to uM and percent Saturation units 
-  convertdata <- ConvertGasesSuperFlame(correctdata, Elevation)
+  convertdata <- ConvertGasesSuperFlame(taucorrectdata, Elevation)
   
   #Clean data using SensorQC
-  rulefile<-list.files('Data')[grep('SensorQCRules', list.files('Data'))]
+  rulefile <- list.files('Data')[grep('SensorQCRules', list.files('Data'))]
   if (length(rulefile) != 1) {
     stop("'Data' does not contain Tau file for FLAME_Unit (e.g., 'Manual_Hydros_Taus_2017.01.csv') - Check FLAME_Unit on metafile")}
   ruletable <- fread(paste('Data',rulefile, sep="/"), sep=",", skip=0, header=T)
   
-  cleandata <- CleanSuperFlame(convertdata, ruletable, ...)
+  cleandata <- CleanSuperFlame(convertdata, ruletable, bad_data = bad_data,...)
   
   # ###########
   # Output Data
@@ -148,15 +179,15 @@ RunSuperFlame<-function(dir, maps, ...){
   samplefile<-list.files(rawdir)[grep('FlameSamples', list.files(rawdir))]
   if (length(samplefile) != 1) {
     warning("'dir/RawData' does not contain one FlameSample file (e.g., 'FlameSamplesDate.csv')")
-    }  else {
+  }  else {
     sample<-fread(paste(rawdir, samplefile, sep="/"), sep=",", skip=0, header=T)
     sample<-subset(sample, !is.na(as.POSIXct(sample$`Sample Time`, format="%H:%M:%S")))
     sampledata<-ExtractSample(cleandata, alldata, sample, dir, Date, tz)
     
     write.table(sampledata, file = as.character(paste(dir, '/ProcessedData/', Date, "_", Site, "_08_Samples.csv", sep="")), col.names=TRUE,row.names=F, sep=",")
   }
-
-  message(paste("Finished all superflame scripts. Ended at ", Sys.time()))
+  
+  cat("Finished at:", Sys.time(), "\n" )
   
   
 }
