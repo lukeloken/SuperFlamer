@@ -41,12 +41,12 @@ register_google(key = as.character(GoogleAPIkey))
 # map_test<-get_googlemap(center = c(-120.04, 39.09), size = c(640,640),
 #                         zoom = 11, scale=2, maptype = "satellite", key=GoogleAPIkey )
 # TonleSap
-map_test<-get_googlemap(center = c(104.45, 12.35),
-                        size = c(380,380),
-                        zoom = 8,
-                        scale = 2,
-                        maptype = "satellite",
-                        key=GoogleAPIkey )
+# map_test<-get_googlemap(center = c(104.45, 12.35),
+#                         size = c(380,380),
+#                         zoom = 8,
+#                         scale = 2,
+#                         maptype = "satellite",
+#                         key=GoogleAPIkey )
 # 
 # ggmap(map_test)
 # 
@@ -81,7 +81,7 @@ map_upper <-get_googlemap(center = c(-88.2, 41.6),
 
 ggmap(map_upper)
 
-map_lower <-get_googlemap(center = c(-90.6, 39.5),
+map_lower <-get_googlemap(center = c(-90.6, 39.4),
                            size = c(640,640),
                            zoom = 9,
                            scale = 2,
@@ -91,6 +91,69 @@ map_lower <-get_googlemap(center = c(-90.6, 39.5),
 ggmap(map_lower)
 
 
+#Zoom in a bit more
+map_zoom10_1 <-get_googlemap(center = c(-90.52, 39),
+                          size = c(640,640),
+                          zoom = 10,
+                          scale = 2,
+                          maptype = "satellite",
+                          key=GoogleAPIkey )
+
+ggmap(map_zoom10_1)
+
+map_zoom10_2 <-get_googlemap(center = c(-90.7, 39.6),
+                             size = c(640,640),
+                             zoom = 10,
+                             scale = 2,
+                             maptype = "satellite",
+                             key=GoogleAPIkey )
+
+ggmap(map_zoom10_2)
+
+map_zoom10_3 <-get_googlemap(center = c(-90.3, 40.1),
+                             size = c(640,640),
+                             zoom = 10,
+                             scale = 2,
+                             maptype = "satellite",
+                             key=GoogleAPIkey )
+
+ggmap(map_zoom10_3)
+
+map_zoom10_4 <-get_googlemap(center = c(-89.8, 40.6),
+                             size = c(640,640),
+                             zoom = 10,
+                             scale = 2,
+                             maptype = "satellite",
+                             key=GoogleAPIkey )
+
+ggmap(map_zoom10_4)
+
+map_zoom10_5 <-get_googlemap(center = c(-89.3, 41.1),
+                             size = c(640,640),
+                             zoom = 10,
+                             scale = 2,
+                             maptype = "satellite",
+                             key=GoogleAPIkey )
+
+ggmap(map_zoom10_5)
+
+map_zoom10_6 <-get_googlemap(center = c(-88.5, 41.35),
+                             size = c(640,640),
+                             zoom = 10,
+                             scale = 2,
+                             maptype = "satellite",
+                             key=GoogleAPIkey )
+
+ggmap(map_zoom10_6)
+
+map_zoom10_7 <-get_googlemap(center = c(-87.9, 41.8),
+                             size = c(640,640),
+                             zoom = 10,
+                             scale = 2,
+                             maptype = "satellite",
+                             key=GoogleAPIkey )
+
+ggmap(map_zoom10_7)
 
 #save maps
 # saveRDS(map, file=paste0(dropbox_dir, '/Data/SpatialData/UpperShipChannel_map1.rds'))
@@ -107,7 +170,20 @@ saveRDS(map_upper, file.path(onedrive_dir, 'SpatialData', 'IllinoisRiver_upper_g
 saveRDS(map_middle, file.path(onedrive_dir, 'SpatialData', 'IllinoisRiver_middle_ggmap.rds'))
 saveRDS(map_big, file.path(onedrive_dir, 'SpatialData', 'IllinoisRiver_big_ggmap.rds'))
 
-
+saveRDS(map_zoom10_1, file.path(onedrive_dir, 'SpatialData',
+                                'IllinoisRiver_zoom10_1_ggmap.rds'))
+saveRDS(map_zoom10_2, file.path(onedrive_dir, 'SpatialData',
+                                'IllinoisRiver_zoom10_2_ggmap.rds'))
+saveRDS(map_zoom10_3, file.path(onedrive_dir, 'SpatialData',
+                                'IllinoisRiver_zoom10_3_ggmap.rds'))
+saveRDS(map_zoom10_4, file.path(onedrive_dir, 'SpatialData',
+                                'IllinoisRiver_zoom10_4_ggmap.rds'))
+saveRDS(map_zoom10_5, file.path(onedrive_dir, 'SpatialData',
+                                'IllinoisRiver_zoom10_5_ggmap.rds'))
+saveRDS(map_zoom10_6, file.path(onedrive_dir, 'SpatialData',
+                                'IllinoisRiver_zoom10_6_ggmap.rds'))
+saveRDS(map_zoom10_7, file.path(onedrive_dir, 'SpatialData',
+                                'IllinoisRiver_zoom10_7_ggmap.rds'))
 # 
 # 
 #load maps

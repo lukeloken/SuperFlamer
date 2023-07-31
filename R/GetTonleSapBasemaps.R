@@ -93,7 +93,7 @@ map_test<-get_googlemap(center = c(104.45, 12.35),
 # ggmap(map_Mekong_big)
 
 #Mekong South
-map_Mekong_south <- get_googlemap(center = c(105.1, 11.2),
+map_Mekong_south <- get_googlemap(center = c(104.9, 11.3),
                         size = c(640,640),
                         zoom = 10,
                         scale = 2,
@@ -103,7 +103,7 @@ map_Mekong_south <- get_googlemap(center = c(105.1, 11.2),
 ggmap(map_Mekong_south)
 
 #Mekong Middle1
-map_Mekong_middle1 <- get_googlemap(center = c(105.3, 11.9),
+map_Mekong_middle1 <- get_googlemap(center = c(105.2, 11.9),
                                   size = c(640,640),
                                   zoom = 10,
                                   scale = 2,
@@ -113,7 +113,7 @@ map_Mekong_middle1 <- get_googlemap(center = c(105.3, 11.9),
 ggmap(map_Mekong_middle1)
 
 #Mekong Middle2
-map_Mekong_middle2 <- get_googlemap(center = c(105.8, 12.6),
+map_Mekong_middle2 <- get_googlemap(center = c(105.8, 12.65),
                                    size = c(640,640),
                                    zoom = 10,
                                    scale = 2,
@@ -123,7 +123,7 @@ map_Mekong_middle2 <- get_googlemap(center = c(105.8, 12.6),
 ggmap(map_Mekong_middle2)
 
 #Mekong North
-map_Mekong_north <- get_googlemap(center = c(106, 13.1),
+map_Mekong_north <- get_googlemap(center = c(105.9, 13.35),
                                   size = c(640,640),
                                   zoom = 10,
                                   scale = 2,
@@ -131,6 +131,16 @@ map_Mekong_north <- get_googlemap(center = c(106, 13.1),
                                   key=GoogleAPIkey )
 
 ggmap(map_Mekong_north)
+
+#Mekong North
+map_Mekong_north2 <- get_googlemap(center = c(106, 13.7),
+                                  size = c(640,640),
+                                  zoom = 10,
+                                  scale = 2,
+                                  maptype = "satellite",
+                                  key=GoogleAPIkey )
+
+ggmap(map_Mekong_north2)
 
 #save maps
 # saveRDS(map, file=paste0(dropbox_dir, '/Data/SpatialData/UpperShipChannel_map1.rds'))
@@ -146,7 +156,7 @@ saveRDS(map_Mekong_south, file.path(onedrive_dir, 'SpatialData', 'MekongRiver_so
 saveRDS(map_Mekong_middle1, file.path(onedrive_dir, 'SpatialData', 'MekongRiver_middle1_ggmap.rds'))
 saveRDS(map_Mekong_middle2, file.path(onedrive_dir, 'SpatialData', 'MekongRiver_middle2_ggmap.rds'))
 saveRDS(map_Mekong_north, file.path(onedrive_dir, 'SpatialData', 'MekongRiver_north_ggmap.rds'))
-
+saveRDS(map_Mekong_north2, file.path(onedrive_dir, 'SpatialData', 'MekongRiver_north2_ggmap.rds'))
 
 # 
 # 
