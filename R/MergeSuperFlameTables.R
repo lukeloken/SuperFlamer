@@ -7,7 +7,7 @@
 
 library(data.table)
 
-ReadSuperFlame <- function(dir){
+ReadSuperFlame <- function(dir, bad_data = NULL){
   rawdir <- paste(dir, "RawData", sep = "/")
   files <- list.files(rawdir)
   if (length(files) ==0) {
@@ -15,14 +15,16 @@ ReadSuperFlame <- function(dir){
   
   # Merge data files that contain these strings in the file name
   # Load files in this order
-  patterns <- c('GPS', 'Public', 'EXO', 'GGA', 'SUNA', 'Turner', 'EchoMap')
+  patterns <- c('GPS', 'Public', 'EXO', 'GGA', 'SUNA', 'Turner', 'EchoMap', 'C6', 'FluoroProbe')
   loadfiles <- c(files[grep(patterns[1], files)],
                  files[grep(patterns[2], files)],
                  files[grep(patterns[3], files)],
                  files[grep(patterns[4], files)],
                  files[grep(patterns[5], files)],
                  files[grep(patterns[6], files)],
-                 files[grep(patterns[7], files)])
+                 files[grep(patterns[7], files)],
+                 files[grep(patterns[8], files)], 
+                 files[grep(patterns[9], files)])
   
   # patterns <- c('Public')
   # loadfiles <- c(files[grep(patterns[1], files)])
@@ -83,8 +85,15 @@ ReadSuperFlame <- function(dir){
   
   # Set Lat/Long to decimal degrees rather than ddmm.mmmm (likely delete after July 5, 2017)
   # my.df[,c('longitude', 'latitude')]<-lapply(my.df[,c('longitude', 'latitude')], ConvertToDD)
-  
 
+  #Early flame code saved wiper position as a different name, change...  
+  # names(my.df)[which(names(my.df) == "wiperPosition_V")] <- "wiperPos"
+  names(my.df)[which(names(my.df) == "nn03_mg")] <- "NO3_mgL"
+  names(my.df)[which(names(my.df) == "no3_uM")] <- "NO3_uM"
+  
+  
+  my.df
+  
 
   return(my.df)
   
