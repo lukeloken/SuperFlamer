@@ -4,8 +4,9 @@
 # #######################################################################################
 
 
-
-MergeSampleTables <- function(home_path, directories_merge, merge_name){
+MergeSampleTables <- function(home_path, 
+                              directories_merge, 
+                              merge_name){
   
   # Load packages
   library(gtools)
@@ -16,7 +17,7 @@ MergeSampleTables <- function(home_path, directories_merge, merge_name){
   
   samples_out <- as.data.frame(matrix(nrow=0, ncol=0))
   
-  dir <- directories_merge[1]
+  dir <- directories_merge[6]
   for (dir in directories_merge){
     subdir <- file.path(home_path, dir, "ProcessedData")
     subdir_files <- list.files(subdir)
