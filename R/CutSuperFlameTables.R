@@ -51,7 +51,7 @@ CutSuperFlame<-function(alldata, meta){
   # Remove error data based on strings
   # New as of Jan 2022
   # cutdata2 <- cutdata
-  if(meta$LGR_Unit[1] == "UNR"){
+  if(meta$LGR_Unit[1] == "UNR" & meta$Date[1] <= as.Date("2022-05-01")){
     
     stringdata <- cutdata %>%
       select(contains("GGA_String"))
