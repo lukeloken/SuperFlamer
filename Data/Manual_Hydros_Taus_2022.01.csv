@@ -1,3 +1,3 @@
-names,temp,specCond,pH,chlor_ugL,chlor_RFU,ODO_percent,ODO_mgL,BGApc_RFU,BGApc_ugL,turb_FNU,fDOM_RFU,fDOM_QSU,CH4,CO2,CH4_Dry,CO2_Dry
-hydro,7,7,7,6,6,7,7,6,6,7,8,8,13,13,13,13
-tau,6,8,4,5,5,8,8,5,5,4,2,2,150,14,150,14
+names,temp,specCond,pH,turb_FNU,ODO_percent,ODO_mgL,chlor_RFU,chlor_ugL,BGApc_RFU,BGApc_ugL,fDOM_RFU,fDOM_QSU,CH4,CO2,CH4_Dry,CO2_Dry,Turb_C6P,CDOM_C6P,CHL_a_C6P,Brightners,Fluorescein,Ref_Fuel,Temp_C6P,CDOM_C6P_wt,CDOM_C6P_turb
+hydro,7,7,7,7,7,7,6,6,6,6,8,8,13,13,13,13,10,10,10,10,10,10,10,10,10
+tau,6,8,4,4,8,8,5,5,5,5,2,2,150,14,150,14,3,3,3,3,3,3,3,3,3
