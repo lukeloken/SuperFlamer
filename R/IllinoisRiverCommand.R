@@ -25,7 +25,7 @@ source('remove_bad_data_Illinois.R')
 
 #Choose gg basemaps
 
-onedrive_dir <- 'C:/Users/lloken/OneDrive - DOI/FLAMeIllinois'
+onedrive_dir <- 'C:/Users/slafond-hudson/DOI/Loken, Luke C - FLAMeIllinois/'
 
 #Illinois River (May 2022)
 map_big <- readRDS(file = file.path(onedrive_dir, 'SpatialData',
@@ -56,7 +56,7 @@ map_zoom10_7 <- readRDS(file.path(onedrive_dir, 'SpatialData',
 bad_data <- remove_bad_data_Illinois()
 
 #Load the flame directories
-home_path <- "C:/Users/lloken/OneDrive - DOI/FLAMeIllinois/Data"
+home_path <- "C:/Users/slafond-hudson/DOI/Loken, Luke C - FLAMeIllinois/Data"
 
 #May 2022 (Illinois)
 dates_merge <- seq.Date(as.Date("2022-05-02"), as.Date("2022-05-07"), by = "day")
@@ -132,7 +132,7 @@ for(dir in directories_torun){
   # plotdiag=F will turn off sensorQC plotting (outlier flags)
   RunSuperFlame(dir, 
                 maps = maps, 
-                plotdiag = TRUE, 
+                plotdiag = FALSE, 
                 legend = "topleft", 
                 bad_data = bad_data)
   
