@@ -24,7 +24,7 @@ PlotSuperFlame<-function(geodata, dir, Date, Site){
         
         png(paste(dir, "/Maps/", name, Date, Site, ".png", sep=""), res=200, width=5,height=12, units="in")
         
-        par(mar=c(2,1.5,2,0),bg=NA)
+        par(mar=c(2,1.5,2,0), bg="white")
         par(mfrow=c(3,1)) 
         par( oma = c( 1.5,2,1,0 ) )
         par(tck=-.02)

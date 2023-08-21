@@ -29,7 +29,9 @@ RemoveErroneousData <- function(trimdata, bad_data = NULL){
     median(trimdata2$wiperPos, na.rm = TRUE)
     hist(trimdata2$wiperPos)
     summary(trimdata2$wiperPos)
-    goodwiperrange <- quantile(trimdata2$wiperPos, c(.1, .9), na.rm = TRUE)
+    # goodwiperrange <- quantile(trimdata2$wiperPos, c(.1, .9), na.rm = TRUE)
+    
+    goodwiperrange <- median(trimdata2$wiperPos, na.rm = TRUE) + c(-0.02, 0.02)
     
     wipedrows <- which(trimdata2$wiperPos < goodwiperrange[1] | 
                          trimdata2$wiperPos > goodwiperrange[2])
