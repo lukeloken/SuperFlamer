@@ -1,6 +1,7 @@
 
 
 remove_bad_data_Illinois <- function(){
+  library(dplyr)
   bad_data <- ".dplyr"
   
   
