@@ -25,11 +25,11 @@ source('remove_bad_data_Illinois.R')
 
 #Choose gg basemaps
 
-onedrive_dir <- 'C:/Users/lloken/OneDrive - DOI/FLAMeFox'
+onedrive_dir <- 'C:/Users/slafond-hudson/DOI/Loken, Luke C - FLAMeFox'
 
 #Load the flame directories
 #fix this dupliation
-home_path <- "C:/Users/lloken/OneDrive - DOI/FLAMeFox/Data"
+home_path <- "C:/Users/slafond-hudson/DOI/Loken, Luke C - FLAMeFox/Data"
 map_lake <- readRDS(file.path(onedrive_dir, 'SpatialData', 'FoxRiver_lake_ggmap.rds'))
 map_lower <- readRDS(file.path(onedrive_dir, 'SpatialData', 'FoxRiver_lower_ggmap.rds'))
 map_upper <- readRDS(file.path(onedrive_dir, 'SpatialData', 'FoxRiver_upper_ggmap.rds'))
@@ -51,7 +51,7 @@ directories_all <- list.files(home_path)
 directories_dates <- which(!is.na(as.Date(directories_all)) & as.Date(directories_all) %in% dates_merge)
 directories_torun <- file.path(home_path, directories_all[directories_dates])
 directories_torun <- directories_torun[length(directories_torun)]
-dir = directories_torun[1]
+dir = directories_torun[3]
 for(dir in directories_torun){
  
   
