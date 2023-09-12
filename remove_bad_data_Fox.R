@@ -14,8 +14,8 @@ remove_bad_data_Fox <- function(){
     filter(variable != "NA") %>%
     bind_rows(data = data.frame(
       variable = c("turb_FNU"), 
-      bad_start = as.POSIXct(c("2023-08-07 20:10:00", "2023-08-07 21:30:00", "2023-08-07 22:20:00"), tz = "UTC"), 
-      bad_end = as.POSIXct(c("2023-08-07 21:05:00", "2023-08-07 21:50:00", "2023-08-07 22:35:00"), tz = "UTC"))) %>%
+      bad_start = as.POSIXct(c("2023-08-07 20:10:00", "2023-08-07 21:29:00", "2023-08-07 22:20:00"), tz = "UTC"), 
+      bad_end = as.POSIXct(c("2023-08-07 21:10:00", "2023-08-07 21:55:00", "2023-08-07 22:30:00"), tz = "UTC"))) %>%
     distinct()
   
   
