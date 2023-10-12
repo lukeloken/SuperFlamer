@@ -3,6 +3,7 @@ library(sf)
 library(ggmap)
 library(ggplot2)
 library(viridis)
+library(riverdist)
 
 home_path <- "C:/Users/slafond-hudson/DOI/Loken, Luke C - FLAMeIllinois/Data"
 
@@ -28,6 +29,9 @@ st_bbox(geodata_crop)
 # note: st_bbox(aqa84) and bbox printed in head(aqa84) differ
 # st_bbox(aqa84) is what works for cropping
 
+#save objects to reload later, skip time-intensive steps every time
+saveRDS(aqa84, file.path(home_path, "ProcessedObjects", "lag_aqa84.RDS"))
+saveRDS(geodata_crop, file.path(home_path, "ProcessedObjects", "lag_geodata.RDS"))
 # manually plot flame data on aquatic areas
 
 ggplot() +
@@ -36,9 +40,16 @@ ggplot() +
   geom_sf(data = geodata_crop, aes(color = CH4_Dry), alpha=0.5)+
   scale_color_continuous(type="viridis")+
   labs(title="LaGrange Pool July 2023")+
-  theme_void()+
-  theme(plot.title = element_text(hjust=0.5))
-ggsave("./figures/LaGrange_aa_ph.png", dpi=300)
+  theme_classic()+
+  theme(plot.title = element_text(hjust=0.5))+
+  theme(axis.text.x=element_blank(), 
+        axis.text.y=element_blank(), 
+        axis.title.y=element_blank(), 
+        axis.title.x=element_blank(), 
+        axis.ticks=element_blank(), 
+        plot.margin = unit(c(0, 0, 0, 0), "cm"))+
+  theme(text = element_text(size = 8))
+ggsave("./figures/LaGrange_aa_chlor.png", dpi=300, width = 6, height = 6, units = "in")
 
 #eventually get a loop that will create maps for all (relevant/corrected) variables
 ######################################################################
@@ -49,8 +60,8 @@ ggsave("./figures/LaGrange_aa_ph.png", dpi=300)
 # but does not work
 ###############
 
-maps <- aqa84
-geodata <- geodata_crop
+maps <- readRDS(file.path(home_path, "ProcessedObjects", "lag_aqa84.RDS"))
+geodata <- readRDS(file.path(home_path, "ProcessedObjects", "lag_geodata.RDS"))
 output_path <- 'C:/workflows/SuperFlamer/figures'
 
 names(geodata)
@@ -74,9 +85,10 @@ geodata <- geodata %>%
          "Fluorescein","Ref_Fuel",
          "Temp_C6P",  
          "CDOM_C6P_wt", "CDOM_C6P_turb",
-         "CHL_a_C6P_wt", "CHL_a_C6P_turb",
+         "CHL_a_C6P_wt", 
+         # "CHL_a_C6P_turb", "Fluorescein_turb",
          "Brightners_wt", "Brightners_turb",
-         "Fluorescein_wt", "Fluorescein_turb",
+         "Fluorescein_wt",
          "Ref_Fuel_wt", "Ref_Fuel_turb",
          "FP_Trans", "FP_GreenAlgae",
          "FP_BlueGreen", "FP_Diatoms",
@@ -99,26 +111,36 @@ PlotSuperFlameAquaticAreas <- function(geodata,
   #Identify variables in dataset to plot
   plotvars_i <- names(geodata)
   
-  # var_i = "CH4_Dry"
-  
+  #var_i = "CH4_Dry"
   #Loop through geodata and plot each variable
+
+  #9/15: attempt to loop through creating a data frame
+  # with just geometry and var_i, then plot using that data frame
+  # still not working though
   
+  map <- ggplot() +
+  geom_sf(data = maps, aes(fill = AQUA_DESC), alpha = 0.5) +
+  scale_fill_brewer("Aquatic area type", palette = "Dark2")
+  
+  var_i = "CH4_Dry"
   for (var_i in plotvars_i) {
     # name <- var_i
     # when looping, specifying the scale_color results in error
     # "discrete value supplied to continuous scale"
     # but in manual plotting above, aqa can be specified with discrete fill
     # and flame data specified with a continuous color gradient
-    map <- ggplot() +
-      geom_sf(data = maps, aes(fill = AQUA_DESC), alpha = 0.5) +
-      scale_fill_brewer("Aquatic area type", palette = "Dark2") +
-      geom_sf(data = geodata,
-              aes(color = .data[[var_i]]),
-              alpha = 0.5)+
-      # scale_color_continuous(type="viridis")+
+    data_i <- geodata %>% 
+      select(geometry, any_of(var_i)) %>% 
+      filter(!is.na(var_i))
+    # map <- ggplot() +
+    #   geom_sf(data = maps, aes(fill = AQUA_DESC), alpha = 0.5) +
+    #   scale_fill_brewer("Aquatic area type", palette = "Dark2")
+      
+    map_i <- map + geom_sf(data = data_i, aes(color = .data[[var_i]]))+
+      scale_color_continuous(type="viridis")+
       theme_void()
     
-    print(map)
+    print(map_i)
     
     # ggsave(file.path(dir,
     #                  paste(name, ".png", sep="")),
@@ -128,3 +150,94 @@ PlotSuperFlameAquaticAreas <- function(geodata,
 }
 
 PlotSuperFlameAquaticAreas(geodata, dir=output_path, maps)
+
+
+##### Next steps: remove non-aquatic polygons
+##### Isolate just the main channel polygons and flame data that falls within
+##### ideally bind aquatic areas and flame datasets for easier manipulation
+
+aqa_water <- aqa84 %>%
+  filter(LAND_WATER=="Water")
+
+main_channel <- aqa84 %>%
+  filter(AQUA_CODE=='MNC')
+
+ggplot() +
+  geom_sf(data=main_channel)+
+  theme_void()
+
+outside_main <- aqa_water %>%
+  filter(AQUA_CODE!="MNC")
+
+ggplot() +
+  geom_sf(data=outside_main, aes(fill=AQUA_DESC))+
+  theme_void()
+
+aqa_ifl <- aqa_water %>%
+  filter(AQUA_CODE=="IFL")
+
+ggplot() +
+  geom_sf(data=aqa_ifl, aes(fill=AQUA_DESC))+
+  theme_void()
+
+aqa_trib <- aqa_water %>% 
+  filter(AQUA_CODE=="TRC")
+
+ggplot()+
+  geom_sf(data=aqa_trib)+
+  theme_void()
+
+# bb_main <- st_bbox(main_channel)
+# geodata_main <- st_crop(geodata, bb_main)
+#this might not be the way to do this,
+#crops via a rectangle rather than whether
+#points fall within the polygon
+
+flame_main <- st_intersection(geodata_crop, main_channel)
+head(flame_main)
+
+flame_outside_main <- st_intersection(geodata_crop, outside_main)
+flame_outside_main <- flame_outside_main %>%
+  filter(!is.na(NO3_uM))
+
+#plot flame data in main channel
+flame_main <- flame_main %>%
+  filter(!is.na(NO3_uM))
+
+ggplot() +
+  geom_sf(data = aqa_trib)+
+  geom_sf(data = flame_main, aes(color = NO3_uM), alpha=0.5)+
+  scale_color_continuous(type="viridis")+
+  labs(title="LaGrange Pool July 2023")+
+  theme_classic()+
+  theme(plot.title = element_text(hjust=0.5))+
+  theme(axis.text.x=element_blank(), 
+        axis.text.y=element_blank(), 
+        axis.title.y=element_blank(), 
+        axis.title.x=element_blank(), 
+        axis.ticks=element_blank(), 
+        plot.margin = unit(c(0, 0, 0, 0), "cm"))+
+  theme(text = element_text(size = 8))
+ggsave("./figures/LaGrange_aa_NO3tribs.png", dpi=300, width = 6, height = 6, units = "in")
+
+#plot flame data outside main channel
+ggplot() +
+  geom_sf(data = outside_main, aes(fill = AQUA_DESC), alpha=0.5)+
+  scale_fill_brewer("Aquatic area type", palette="Dark2")+
+  geom_sf(data = flame_outside_main, aes(color = NO3_uM), alpha=0.5)+
+  scale_color_continuous(type="viridis")+
+  labs(title="LaGrange Pool July 2023")+
+  theme_classic()+
+  theme(plot.title = element_text(hjust=0.5))+
+  theme(axis.text.x=element_blank(), 
+        axis.text.y=element_blank(), 
+        axis.title.y=element_blank(), 
+        axis.title.x=element_blank(), 
+        axis.ticks=element_blank(), 
+        plot.margin = unit(c(0, 0, 0, 0), "cm"))+
+  theme(text = element_text(size = 8))
+
+
+
+
+
