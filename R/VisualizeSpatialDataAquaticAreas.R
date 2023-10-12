@@ -142,9 +142,9 @@ PlotSuperFlameAquaticAreas <- function(geodata,
     
     print(map_i)
     
-    # ggsave(file.path(dir,
-    #                  paste(name, ".png", sep="")),
-    #        map, width = 6, height = 6, units = "in")
+    ggsave(file.path(dir,
+                     paste(var_i, ".png", sep="")),
+           map, width = 6, height = 6, units = "in")
     
   }
 }
