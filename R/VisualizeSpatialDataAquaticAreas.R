@@ -62,7 +62,7 @@ ggsave("./figures/LaGrange_aa_chlor.png", dpi=300, width = 6, height = 6, units 
 
 maps <- readRDS(file.path(home_path, "ProcessedObjects", "lag_aqa84.RDS"))
 geodata <- readRDS(file.path(home_path, "ProcessedObjects", "lag_geodata.RDS"))
-output_path <- 'C:/workflows/SuperFlamer/figures'
+output_path <- 'C:/Users/slafond-hudson/DOI/Loken, Luke C - FLAMeIllinois/Data/AquaticAreas/lag_aqa_flame_points'
 
 names(geodata)
 geodata <- geodata %>%
@@ -95,6 +95,34 @@ geodata <- geodata %>%
          "FP_Cryptophyta", "FP_YellowSubs",
          "latitude", "longitude")
 
+commonTheme_map <- list(
+  theme(axis.text.x=element_blank(), 
+        axis.text.y=element_blank(), 
+        axis.title.y=element_blank(), 
+        axis.title.x=element_blank(), 
+        axis.ticks=element_blank(), 
+        plot.margin = unit(c(0, 0, 0, 0), "cm"),
+        plot.background = element_rect(fill="white"),
+        panel.background = element_rect(fill="white")),
+  
+  # scale_colour_gradientn(colours = color.palette(n=100), 
+                         # limits=a_1_99tile, oob = scales::squish),
+  theme(legend.position = c(.02, .48),
+        legend.justification = c(0,0), 
+        legend.background = element_rect(fill = NA, colour=NA),
+        legend.text=element_text(size=8),
+        legend.title=element_text(size=10), 
+        legend.key.height = unit(.4, "cm"),
+        legend.key.width = unit(1.2, "cm"), 
+        panel.border=element_rect(fill=NA, colour="black"), 
+        legend.direction="vertical"),
+  guides(colour=guide_colorbar(title.position = 'top', 
+                               title.hjust=0, 
+                               ticks.colour = "black", 
+                               ticks.linewidth = 1),
+                               label.position = 'top')
+)
+
 PlotSuperFlameAquaticAreas <- function(geodata,
                                        dir,
                                        maps,
@@ -111,39 +139,25 @@ PlotSuperFlameAquaticAreas <- function(geodata,
   #Identify variables in dataset to plot
   plotvars_i <- names(geodata)
   
-  #var_i = "CH4_Dry"
-  #Loop through geodata and plot each variable
-
-  #9/15: attempt to loop through creating a data frame
-  # with just geometry and var_i, then plot using that data frame
-  # still not working though
+  var_i = "specCond"
   
-  map <- ggplot() +
-  geom_sf(data = maps, aes(fill = AQUA_DESC), alpha = 0.5) +
-  scale_fill_brewer("Aquatic area type", palette = "Dark2")
-  
-  var_i = "CH4_Dry"
   for (var_i in plotvars_i) {
-    # name <- var_i
-    # when looping, specifying the scale_color results in error
-    # "discrete value supplied to continuous scale"
-    # but in manual plotting above, aqa can be specified with discrete fill
-    # and flame data specified with a continuous color gradient
+    
     data_i <- geodata %>% 
       select(geometry, any_of(var_i)) %>% 
       filter(!is.na(var_i))
-    # map <- ggplot() +
-    #   geom_sf(data = maps, aes(fill = AQUA_DESC), alpha = 0.5) +
-    #   scale_fill_brewer("Aquatic area type", palette = "Dark2")
-      
-    map_i <- map + geom_sf(data = data_i, aes(color = .data[[var_i]]))+
-      scale_color_continuous(type="viridis")+
-      theme_void()
     
-    print(map_i)
+    map <- ggplot() +
+      geom_sf(data = maps, aes(fill = AQUA_DESC), alpha = 0.3) +
+      scale_fill_brewer("Aquatic area type", palette = "Dark2")+  
+      geom_sf(data = data_i, aes(color = .data[[var_i]]))+
+      scale_color_continuous(type="viridis")+
+      commonTheme_map
+    
+    print(map)
     
     ggsave(file.path(dir,
-                     paste(var_i, ".png", sep="")),
+                     paste("lag_", var_i, ".png", sep="")),
            map, width = 6, height = 6, units = "in")
     
   }
