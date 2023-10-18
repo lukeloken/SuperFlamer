@@ -30,24 +30,28 @@ merge_aquatic_areas <- function(aqa_path, processed_path){
   df <- bind_rows(pools, .id='Pool') %>%
     select(-OBJECTID)
   
-  #filter out specific aquatic areas and save
-  main_channel <- df %>% 
-    filter(AQUA_CODE == "MNC")
+  points_aqa <- st_intersection(points, df)
   
-  saveRDS(main_channel, file.path(processed_path, "main_channel.rds"))
+  saveRDS(points_aqa, file.path(processed_path, "flame_intersected_aqa.rds")) #give this a more descriptive name
   
-  aquatic_only <- df %>%
-    filter(LAND_WATER == "Water")
-  
-  saveRDS(aquatic_only, file.path(processed_path, "aquatic_only.rds"))
-  
-  trib_channel <- df %>%
-    filter(AQUA_CODE == "TRC")
-  
-  saveRDS(trib_channel, file.path(processed_path, "trib_channel.rds"))
-  
-  floodplain_lakes <- df %>%
-    filter(AQUA_CODE == c("CFSA", "IFL", "CFL"))
-  saveRDS(floodplain_lakes, file.path(processed_path, "floodplain_lakes.rds"))
+  # #filter out specific aquatic areas and save
+  # main_channel <- df %>% 
+  #   filter(AQUA_CODE == "MNC")
+  # 
+  # saveRDS(main_channel, file.path(processed_path, "main_channel.rds"))
+  # 
+  # aquatic_only <- df %>%
+  #   filter(LAND_WATER == "Water")
+  # 
+  # saveRDS(aquatic_only, file.path(processed_path, "aquatic_only.rds"))
+  # 
+  # trib_channel <- df %>%
+  #   filter(AQUA_CODE == "TRC")
+  # 
+  # saveRDS(trib_channel, file.path(processed_path, "trib_channel.rds"))
+  # 
+  # floodplain_lakes <- df %>%
+  #   filter(AQUA_CODE == c("CFSA", "IFL", "CFL"))
+  # saveRDS(floodplain_lakes, file.path(processed_path, "floodplain_lakes.rds"))
 }
 

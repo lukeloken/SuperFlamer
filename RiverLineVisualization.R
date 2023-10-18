@@ -83,16 +83,19 @@ PlotSuperFlameRiverDist <- function(geodata, dir) {
   #Identify variables in dataset to plot
   plotvars_i <- names(geodata)
 
-  var_i = "specCond"
+  # var_i = "NO3_mgL"
 
   for (var_i in plotvars_i) {
-  
+    
   data_i <- geodata %>% 
-    select(Dist, any_of(var_i)) %>% 
+    select(Dist, any_of(var_i), AQUA_CODE) %>% 
     filter(!is.na(var_i))
 
-  fig <- ggplot(data_i, aes(x=Dist/1000, y=.data[[var_i]]))+
-    geom_point(size = 1, alpha=0.5)+
+  data_i$AQUA_CODE <- factor(data_i$AQUA_CODE, levels=c("MNC", "CB", "SC", "TRC", "CFL", "LM", "N"))
+  
+  fig <- ggplot(data_i, aes(x=Dist/1000, y=.data[[var_i]], color=AQUA_CODE))+
+    geom_point(size = 1, alpha=0.7)+
+    scale_color_brewer("Aquatic area type", palette="BuGn")+
     labs(x = "River distance (km)")+
     theme_classic()
   

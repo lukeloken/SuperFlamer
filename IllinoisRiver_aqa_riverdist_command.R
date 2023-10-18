@@ -10,7 +10,7 @@ library(riverdist)
 aqa_path <- "C:/Users/slafond-hudson/DOI/Loken, Luke C - FLAMeIllinois/Data/AquaticAreas"
 processed_path <- "C:/Users/slafond-hudson/DOI/Loken, Luke C - FLAMeIllinois/Data/ProcessedObjects"
 spatial_dir <- "C:/Users/slafond-hudson/DOI/Loken, Luke C - FLAMeIllinois/SpatialData"
-output_path <- "C:/workflows/SuperFlamer/figures"
+output_path <- "C:/Users/slafond-hudson/DOI/Loken, Luke C - FLAMeIllinois/Data/Merged_Illinois_Jul_2023/RiverDist_plots"
 flame_path <- "C:/Users/slafond-hudson/DOI/Loken, Luke C - FLAMeIllinois/Data/Merged_Illinois_Jul_2023/Shapefiles"
 flame_file <- "Merged_Illinois_Jul_2023_Shapefile_AllData"
 
@@ -60,14 +60,14 @@ snap_points_to_river(points, projection, processed_path, flame_file)
 #Step 4: plot flame data by river distance
 
 #read in snapped flame data
-points <- readRDS(points, file=file.path(processed_path, paste(flame_file, "_all_snapped", ".rds", sep="")))
-points_mc <- readRDS(points_mc, file=file.path(processed_path, paste(flame_file, "_mc_snapped", ".rds", sep="")))
-points_ao <- readRDS(points_ao, file=file.path(processed_path, paste(flame_file, "_ao_snapped", ".rds", sep="")))  
-points_fl <- readRDS(points_fl, file=file.path(processed_path, paste(flame_file, "_fl_snapped", ".rds", sep="")))
-points_tribs <- readRDS(points_tribs, file=file.path(processed_path, paste(flame_file, "_tribs_snapped", ".rds", sep="")))
+points <- readRDS(file=file.path(processed_path, paste(flame_file, "_all_snapped", ".rds", sep="")))
+# points_mc <- readRDS(file=file.path(processed_path, paste(flame_file, "_mc_snapped", ".rds", sep="")))
+# points_ao <- readRDS(file=file.path(processed_path, paste(flame_file, "_ao_snapped", ".rds", sep="")))  
+# points_fl <- readRDS(file=file.path(processed_path, paste(flame_file, "_fl_snapped", ".rds", sep="")))
+# points_tribs <- readRDS(file=file.path(processed_path, paste(flame_file, "_tribs_snapped", ".rds", sep="")))
 
 #rename desired points object to geodata and select subset of flame variables
-geodata <- points_mc %>%
+geodata <- points %>%
   select("CH4_Dry", "CO2_Dry", 
          "CH4uM", "CH4Sat", 
          "CO2uM", "CO2Sat",
@@ -95,6 +95,11 @@ geodata <- points_mc %>%
          "FP_Trans", "FP_GreenAlgae",
          "FP_BlueGreen", "FP_Diatoms",
          "FP_Cryptophyta", "FP_YellowSubs",
-         "latitude", "longitude", "Dist")
+         "latitude", "longitude", "Dist",
+         "AQUA_CODE")
 
+output_path = file.path(output_path, "dist_by_aqa")
 PlotSuperFlameRiverDist(geodata, output_path)
+
+#next, need to somehow map flame data onto aquatic areas so that flame dataframe has a column for aquatic area
+#merge?
