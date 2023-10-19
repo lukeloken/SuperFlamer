@@ -3,18 +3,42 @@ library(sf)
 library(ggmap)
 library(ggplot2)
 library(viridis)
-library(riverdist)
 
 home_path <- "C:/Users/slafond-hudson/DOI/Loken, Luke C - FLAMeIllinois/Data"
 
 # read in aquatic area shapefile and check projection
-aqa_path <- "C:/Users/slafond-hudson/DOI/Loken, Luke C - FLAMeIllinois/Data/AquaticAreas/aqa_2010_lag_new"
-aqa <- st_read(dsn=aqa_path, layer="aqa_2010_lag_new")
-st_crs(aqa)
+aqa_path <- "C:/Users/slafond-hudson/DOI/Loken, Luke C - FLAMeIllinois/Data/AquaticAreas"
 
-# transform into WGS84 to match flame data
-aqa84 <- st_transform(aqa, 4326)
-st_crs(aqa84)
+pools <- c('aqa_2010_alt_new', 
+           'aqa_2010_lag_new', 
+           'aqa_2010_mar_new',
+           'aqa_2010_peo_new',
+           'aqa_2010_sta_new',
+           'aqa_2011_bra_new',
+           'aqa_2011_dre_new',
+           'aqa_2011_loc_new')
+names(pools) <- c("Alton", 
+                "LaGrange", 
+                "Marseilles", 
+                "Peoria", 
+                "Starved Rock", 
+                "Brandon",
+                "Dresden",
+                "Lockport")
+
+for (pool in pools){
+  aqa <- st_read(dsn=file.path(aqa_path, pool), layer=pool)
+  aqa84 <- st_transform(aqa, 4326)
+  saveRDS(aqa84, file.path(home_path, "ProcessedObjects", 
+                           paste(pool, "84", ".RDS", sep="")))
+}
+
+# aqa <- st_read(dsn=aqa_path, layer="aqa_2010_lag_new")
+# st_crs(aqa)
+
+# # transform into WGS84 to match flame data
+# aqa84 <- st_transform(aqa, 4326)
+# st_crs(aqa84)
 
 # read in flame data and check it out
 flame_path <- "C:/Users/slafond-hudson/DOI/Loken, Luke C - FLAMeIllinois/Data/Merged_Illinois_Jul_2023/Shapefiles"
@@ -23,23 +47,53 @@ geodata <- readRDS(file.path(flame_path, "Merged_Illinois_Jul_2023_Shapefile_All
 # transform into sf object and crop to same size as aquatic areas shapefile
 geodata <- st_as_sf(geodata, coords=c("latitude", "longitude"))
 
-bb <- st_bbox(aqa84)
-geodata_crop <- st_crop(geodata, bb)
-st_bbox(geodata_crop)
-# note: st_bbox(aqa84) and bbox printed in head(aqa84) differ
-# st_bbox(aqa84) is what works for cropping
+#read in transformed aqa files
+processed_path <- file.path(home_path, "ProcessedObjects")
 
-#save objects to reload later, skip time-intensive steps every time
-saveRDS(aqa84, file.path(home_path, "ProcessedObjects", "lag_aqa84.RDS"))
-saveRDS(geodata_crop, file.path(home_path, "ProcessedObjects", "lag_geodata.RDS"))
+pool="aqa_2011_loc_new"
+for (pool in pools){
+  aqa84 <- readRDS(file.path(processed_path, paste(pool, "84", ".RDS", sep="")))
+  bb <- st_bbox(aqa84)
+  geodata_crop <- st_crop(geodata, bb)
+  saveRDS(geodata_crop, file.path(home_path, "ProcessedObjects", paste(pool, "_geodata.RDS", sep="")))
+  
+  ggplot() +
+    geom_sf(data = aqa84, aes(fill = AQUA_DESC), alpha=0.7, color=NA)+
+    scale_fill_brewer("Aquatic area type", palette="Paired")+
+    geom_sf(data = geodata_crop, aes(color = CH4_Dry), alpha=0.5)+
+    scale_color_continuous(type="viridis")+
+    labs(title=pool)+
+    theme_classic()+
+    theme(plot.title = element_text(hjust=0.5))+
+    theme(axis.text.x=element_blank(), 
+          axis.text.y=element_blank(), 
+          axis.title.y=element_blank(), 
+          axis.title.x=element_blank(), 
+          axis.ticks=element_blank(), 
+          plot.margin = unit(c(0, 0, 0, 0), "cm"))+
+    theme(text = element_text(size = 8))
+}
+
+# bb <- st_bbox(aqa84)
+# geodata_crop <- st_crop(geodata, bb)
+# st_bbox(geodata_crop)
+# # note: st_bbox(aqa84) and bbox printed in head(aqa84) differ
+# # st_bbox(aqa84) is what works for cropping
+# 
+# #save objects to reload later, skip time-intensive steps every time
+# saveRDS(aqa84, file.path(home_path, "ProcessedObjects", "lag_aqa84.RDS"))
+# saveRDS(geodata_crop, file.path(home_path, "ProcessedObjects", "lag_geodata.RDS"))
+
+#end script here #########################
+
 # manually plot flame data on aquatic areas
 
 ggplot() +
-  geom_sf(data = aqa84, aes(fill = AQUA_DESC), alpha=0.5)+
-  scale_fill_brewer("Aquatic area type", palette="Dark2")+
+  geom_sf(data = aqa84, aes(fill = AQUA_DESC), alpha=0.7, color=NA)+
+  scale_fill_brewer("Aquatic area type", palette="Paired")+
   geom_sf(data = geodata_crop, aes(color = CH4_Dry), alpha=0.5)+
   scale_color_continuous(type="viridis")+
-  labs(title="LaGrange Pool July 2023")+
+  labs(title=pool)+
   theme_classic()+
   theme(plot.title = element_text(hjust=0.5))+
   theme(axis.text.x=element_blank(), 
@@ -57,11 +111,22 @@ ggsave("./figures/LaGrange_aa_chlor.png", dpi=300, width = 6, height = 6, units 
 
 ###############
 # the following code is modified from VisualizeSpatialDataGGmap.R
-# but does not work
+# start new script here
 ###############
 
 maps <- readRDS(file.path(home_path, "ProcessedObjects", "lag_aqa84.RDS"))
-geodata <- readRDS(file.path(home_path, "ProcessedObjects", "lag_geodata.RDS"))
+#geodata <- readRDS(file.path(home_path, "ProcessedObjects", "lag_geodata.RDS"))
+points <- readRDS(file.path(processed_path, paste(flame_file, "_all_snapped", ".rds", sep="")))
+
+geodata <- points %>%
+  filter(Pool=="lag",
+         Dist > 390000 & Dist < 410000)
+
+#maps and geodata not in same crs
+#tranform
+#crop by rectangle that includes the flame data of interest
+bbox <- st_crop(maps, geodata)
+
 output_path <- 'C:/Users/slafond-hudson/DOI/Loken, Luke C - FLAMeIllinois/Data/AquaticAreas/lag_aqa_flame_points'
 
 names(geodata)
@@ -107,7 +172,7 @@ commonTheme_map <- list(
   
   # scale_colour_gradientn(colours = color.palette(n=100), 
                          # limits=a_1_99tile, oob = scales::squish),
-  theme(legend.position = c(.02, .48),
+  theme(legend.position = c(.02, .45),
         legend.justification = c(0,0), 
         legend.background = element_rect(fill = NA, colour=NA),
         legend.text=element_text(size=8),
@@ -117,9 +182,12 @@ commonTheme_map <- list(
         panel.border=element_rect(fill=NA, colour="black"), 
         legend.direction="vertical"),
   guides(colour=guide_colorbar(title.position = 'top', 
-                               title.hjust=0, 
+                               title.hjust=0,
+                               barwidth = 1,
+                               barheight = 5,
                                ticks.colour = "black", 
-                               ticks.linewidth = 1),
+                               ticks.linewidth = 0.5,
+                               order = 1),
                                label.position = 'top')
 )
 
@@ -139,17 +207,17 @@ PlotSuperFlameAquaticAreas <- function(geodata,
   #Identify variables in dataset to plot
   plotvars_i <- names(geodata)
   
-  var_i = "specCond"
+  var_i = "FP_BlueGreen"
   
   for (var_i in plotvars_i) {
     
     data_i <- geodata %>% 
       select(geometry, any_of(var_i)) %>% 
-      filter(!is.na(var_i))
+      na.omit()
     
     map <- ggplot() +
-      geom_sf(data = maps, aes(fill = AQUA_DESC), alpha = 0.3) +
-      scale_fill_brewer("Aquatic area type", palette = "Dark2")+  
+      geom_sf(data = maps, aes(fill = AQUA_DESC), alpha = 0.7, color=NA) +
+      scale_fill_brewer("Aquatic area type", palette = "Paired")+  
       geom_sf(data = data_i, aes(color = .data[[var_i]]))+
       scale_color_continuous(type="viridis")+
       commonTheme_map
@@ -165,6 +233,7 @@ PlotSuperFlameAquaticAreas <- function(geodata,
 
 PlotSuperFlameAquaticAreas(geodata, dir=output_path, maps)
 
+# End script here ######################################
 
 ##### Next steps: remove non-aquatic polygons
 ##### Isolate just the main channel polygons and flame data that falls within
