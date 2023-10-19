@@ -84,17 +84,47 @@ RunSuperFlame<-function(dir, maps, bad_data = NULL, ...){
   }
   
   #add if statement to avoid when no turner
-  if("CDOM_C6P" %in% names(correctdata)){
-  correctdata <- TurnerTempTurbCorrect(correctdata, var = "CDOM_C6P", 
-                                       rho = 0.01, alpha = 0.006, temp = 25)
-  correctdata <- TurnerTempTurbCorrect(correctdata, var = "CHL_a_C6P",
-                                       rho = 0.01, alpha = NULL, temp = 25)
-  correctdata <- TurnerTempTurbCorrect(correctdata, var = "Brightners",
-                                       rho = 0.014, alpha = NULL, temp = 25)
-  correctdata <- TurnerTempTurbCorrect(correctdata, var = "Fluorescein",
-                                       rho = 0.009, alpha = NULL, temp = 25)
-  correctdata <- TurnerTempTurbCorrect(correctdata, var = "Ref_Fuel",
-                                       rho = 0.0085, alpha = NULL, temp = 25)
+  if("CDOM_C6P" %in% names(correctdata) & 
+     as.Date(min(correctdata$DateTime, na.rm = TRUE)) > "2022-11-06" & 
+     as.Date(max(correctdata$DateTime, na.rm = TRUE)) < "2023-07-20"){
+ 
+  #First way using single turbiidty equation  
+   # correctdata <- TurnerTempTurbCorrect(correctdata, var = "CDOM_C6P", 
+  #                                      rho = 0.01, alpha = 0.006, temp = 25)
+  # correctdata <- TurnerTempTurbCorrect(correctdata, var = "Brightners",
+  #                                      rho = 0.014, alpha = NULL, temp = 25)
+  # correctdata <- TurnerTempTurbCorrect(correctdata, var = "Ref_Fuel",
+  #                                      rho = 0.0085, alpha = NULL, temp = 25)
+    
+    #new way using 3-component turbidity equation
+    correctdata <- TurnerTempTurbCorrect(correctdata, var = "CDOM_C6P", 
+                                         rho = 0.01, 
+                                         alpha = 0.18, 
+                                         beta = 0.85,
+                                         gamma = (-0.0085),
+                                         temp = 25)
+    
+    correctdata <- TurnerTempTurbCorrect(correctdata, var = "Brightners",
+                                         rho = 0.014, 
+                                         alpha = 0, 
+                                         beta = 1.0,
+                                         gamma = (-0.0077),
+                                         temp = 25)
+    
+    correctdata <- TurnerTempTurbCorrect(correctdata, var = "Ref_Fuel",
+                                         rho = 0.0085, 
+                                         alpha = 0.08, 
+                                         beta = 0.8,
+                                         gamma = (-0.0098),
+                                         temp = 25)
+    
+    correctdata <- TurnerTempTurbCorrect(correctdata, var = "Ref_Fuel",
+                                         rho = 0.0085, alpha = NULL, temp = 25)
+
+    correctdata <- TurnerTempTurbCorrect(correctdata, var = "Ref_Fuel",
+                                         rho = 0.0085, alpha = NULL, temp = 25)
+    
+    
   }
   
   #Load tau table and apply corrections
