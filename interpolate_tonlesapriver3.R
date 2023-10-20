@@ -1,4 +1,7 @@
 
+#load libraries
+#Some of these are not necessary
+
 library(PerformanceAnalytics)
 library(raster)
 library(sf)
@@ -12,7 +15,7 @@ library(gstat)
 library(geoR)
 library(spatstat)
 library(viridis)
-library(rangemap)
+# library(rangemap)
 library(e1071)
 library(evd)
 library(caret)
@@ -43,78 +46,27 @@ color.palette = colorRampPalette(c(viridis(6, begin=.02, end=.98),
                                  bias=1)
 
 
-#Identify interpolated water surfaces (MAP) and flame data folders/files
-
-# MAP_files <- list.files(MAP_dir)
-# MAP_dates <- unique(as.Date(gsub("TonleSap_", "", MAP_files)))
-# MAP_dates <- MAP_dates[which(month(MAP_dates) != "2" | year(MAP_dates) != "2022")]
-
-# MAP_dates <- c("2022-01-16", 
-# "2022-03-29", 
-# "2022-10-07", 
-# "2023-02-04")
-
-#folder names in flamebodia data folder
-#Eventually we will loop through these, one for each campaign on the lake
-
-# flame_folders <- list.files(file.path(onedrive_dir, "Data"))
-# flame_dates <- flame_folders[grepl("Merged_TonleSap_", flame_folders)]
-# flame_dates <- flame_dates[which(str_count(flame_dates, "_") == 3)]
-
-flame_dates <- c("Merged_TonleSap_Jan_2022", 
-                 "Merged_TonleSap_Apr_2022",
-                 "Merged_TonleSap_Sep_2022",
-                 "Merged_TonleSap_Jan_2023")
+#load an example watergrid to get the projection
+MAP_dir <- file.path(onedrive_dir, "GIS", "MAP")
+res = "500m"
+extent = "20km"
+watergrid_predict <- readRDS(file.path(MAP_dir,
+                                       paste0("TonleSap_",
+                                              "2022-01-16", 
+                                              "_WaterGrid_", res, "_", extent, "_buffer.rds")))
 
 
-
-# (Jan 2022, April 2022, Sept 2022, Jan 2023)
-# flame_date_i <- "Merged_TonleSap_Jan_2022"
-# flame_date_i <- "Merged_TonleSap_Sep_2022"
-# flame_date_i <- "Merged_TonleSap_Apr_2022"
-# flame_date_i <- "Merged_TonleSap_Jan_2023"
-
-
-# raster_dates <- as.Date(c("2022-01-16", "2022-02-09", "2022-03-29", "2022-10-07", "2023-02-04"))
-# raster_date_i <- raster_dates[4]
-
-# date = as.Date("2022-01-16")
-# # date = as.Date("2022-02-09")
-# date = as.Date("2022-03-29")
-# date = as.Date("2022-10-07")
-# date = as.Date("2023-02-04")
-
-
-# # #Load focal
-# focal_100m_500m <- readRDS(file.path(MAP_dir, 
-#                                      # "GIS",
-#                                      paste0("TonleSap_", MAP_date_i, "_focal_100m_500m_40km_buffer.rds")))
-# 
-# focal_100m_2500m <- readRDS(file.path(MAP_dir,
-#                                       # "GIS",
-#                                       paste0("TonleSap_", MAP_date_i, "_focal_100m_2500m_40km_buffer.rds")))
-
-
-
-# res = 500
-# watergrid_500m_sp <- readRDS(file.path(MAP_dir,
-#                                        # "GIS",
-#                                        paste0("TonleSap_",
-#                                               MAP_date_i, 
-#                                               "_WaterGrid_500m_40km_buffer.rds")))
-# 
-# 
-# water_raster_500m_classified <- readRDS(file.path(MAP_dir,
-#                                                   # "GIS",
-#                                                   paste0("TonleSap_",
-#                                                          MAP_date_i, 
-#                                                          "_raster_500m_classified_40km_buffer.rds")))
-
-#identify projection to ensure all other features have the same projection
 watergrid_predict
-water_raster_classified
 projection = proj4string(watergrid_predict)
+crs_predict <- crs(watergrid_predict)
+# projection = c("+proj=utm +zone=48 +datum=WGS84 +units=m +no_defs")
 
+
+
+
+#load lots of shapefiles for mapping and reference
+
+#Load the proper shapefiles
 TL_admin <- st_read(file.path(gis_dir, "Mekong"), "TonleSapLakeBoundary") %>%
   st_transform(projection)
 
@@ -150,19 +102,37 @@ plot(st_geometry(TL_union), add = TRUE, border = "darkblue")
 plot(st_geometry(TLR), add = TRUE, col = "blue")
 
 
+#make a buffer around river
 TLR_buffer <- st_buffer(TLR, dist = 1000)
 plot(st_geometry(TLR), col = "blue")
 
 plot(st_geometry(TLR_buffer), add = TRUE, border = "red")
 
 
-#Set the file number so that the correct MAP and flame data are referneced. 
+
+
+# Folder names in flamebodia data folder
+# We will loop through these
+
+flame_dates <- c("Merged_TonleSap_Jan_2022", 
+                 "Merged_TonleSap_Apr_2022",
+                 "Merged_TonleSap_Sep_2022",
+                 "Merged_TonleSap_Jan_2023")
+
+# or we can run one at a time
+# flame_date_i <- "Merged_TonleSap_Jan_2022"
+# flame_date_i <- "Merged_TonleSap_Sep_2022"
+# flame_date_i <- "Merged_TonleSap_Apr_2022"
+# flame_date_i <- "Merged_TonleSap_Jan_2023"
+
+
+
+#Set the file number so that the correct flame data are referenced. 
 file_nu <- 1
-# MAP_date_i <- MAP_dates[file_nu] 
 flame_date_i <- flame_dates[file_nu]
 title_i <- paste(unlist(strsplit(flame_date_i, "_"))[3:4], collapse = " ")
 
-cat("\n", "Starting river interpolation with with ", flame_date_i, "\n\n")
+cat("\n", "Starting river interpolation with with", flame_date_i, "\n\n")
 
 
 # get Flame data
@@ -176,9 +146,9 @@ data_all <- readRDS(file.path(data_dir, "Shapefiles",
 
 # plot(data_all, add = TRUE)
 
-data_all <- spTransform(data_all, crs(watergrid_predict))
+data_all <- spTransform(data_all, crs_predict)
 
-
+#convert to an sf object
 data_sf <- as(data_all, "sf")
 
 # plot(st_geometry(data_sf))
@@ -198,6 +168,7 @@ plot(st_geometry(TLR_points), col = "black", add= TRUE)
 # x_range <- range(st_coordinates(TLR_points)[,1])
 # y_range <- range(st_coordinates(TLR_points)[,2])
 
+#Crop data to fit within boundary or river
 tlr_x_range <- range(st_coordinates(TLR)[,1])
 tlr_y_range <- range(st_coordinates(TLR)[,2])
 
@@ -225,7 +196,7 @@ abline(h = tlr_y_range[2] + 1000, col = "green")
 abline(h = tlr_y_range[1] -00, col = "green")
 
 
-
+#objects to run into analysis
 data <- as(TLR_points, "Spatial")
 
 TLR_sp <- as(TLR, "Spatial")
@@ -266,8 +237,10 @@ points_out$Dist_round <- round(points_out$Dist, 0) #round to nearest meter
 
 spplot(points_out, zcol = "Dist", colorkey = TRUE, cuts = 99)
 
-# create a linear prediction feature
+# create a two-dimension feature for predictions
+# But this is a straight line with a make believe coordinate system
 # This has x = distance, y = 1. We will use a x/y interpolation but only use one dimension for prediction
+# here the sequence is every 10 m
 line_predict <- data.frame(x = seq(min(unlist(TLRNetwork_clean$cumuldist)), 
                                    max(unlist(TLRNetwork_clean$cumuldist)), 
                                    10), 
@@ -275,7 +248,8 @@ line_predict <- data.frame(x = seq(min(unlist(TLRNetwork_clean$cumuldist)),
 coordinates(line_predict) = ~x+y
 
 
-#filter points_out to 10m resolution
+# subset points feature 
+#filter points_out to 10m resolution matching the line_predict feature
 which_points <- which(points_out@data$Dist_round %in% line_predict$x)
 
 points_out_10m <- points_out[which_points,]
@@ -298,7 +272,8 @@ data$Dist <- unlist(TLRNetwork_clean$cumuldist)[data_snapped$vert]
 
 # proj4string(line_predict) = CRS(projection)
 
-#convert data to linear feature
+#convert data to linear (two-dimensional) feature
+# x = distance, y = 1. Matches the make believe prediction feature above
 data_linear <- data.frame(data@data, y = 1)
 coordinates(data_linear) = ~Dist+y
 # proj4string(data_linear) = CRS(projection)
