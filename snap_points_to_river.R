@@ -18,13 +18,13 @@ points <- readRDS(file.path(processed_path, "flame_intersected_aqa.rds"))
 #transforms from sp object to sf object
 snap_points_to_river <- function(points, projection, processed_path, flame_file){
   
-  # points <- st_as_sf(points)
-  # points <- st_transform(points, crs=projection)
-  
+  points <- st_as_sf(points)
+  points <- st_transform(points, crs=projection)
+
   #read in Illinois River main channel file to crop IL_points
   #transform into utm 
   #should have saved as utm but didn't apparently?
-  
+
   # #crop points in main channel
   # main_channel <- readRDS(file.path(processed_path, "main_channel.RDS"))
   # main_channel <- st_transform(main_channel, crs=projection)
@@ -49,7 +49,7 @@ snap_points_to_river <- function(points, projection, processed_path, flame_file)
   # points_tribs <- st_intersection(points, tribs)
   # 
   # # bb_tribs <- st_bbox(tribs)
-
+  
   
   
   #separate long and lat from geometry column
