@@ -46,8 +46,8 @@ for (col_nu in 2:ncol(example_df)){
   
   #apply prediction distance to custom function 
   # example for first value in dist
-  d = dist_i[1]
-  e <- weighted.mean(obs_i, inv_dist_rect[,d])
+  # d = dist_i[1]
+  # e <- weighted.mean(obs_i, inv_dist_rect[,d])
 
   #use apply function to calculate weighted mean at each location
   preds_i <- sapply(dist_i, function(d) weighted.mean(obs_i, inv_dist_rect[,d]))
