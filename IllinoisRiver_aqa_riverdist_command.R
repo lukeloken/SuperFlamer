@@ -96,7 +96,7 @@ geodata <- points %>%
          "FP_BlueGreen", "FP_Diatoms",
          "FP_Cryptophyta", "FP_YellowSubs",
          "latitude", "longitude", "Dist",
-         "AQUA_CODE")
+         "AQUA_CODE", "AQUA_DESC", "Pool")
 
 output_path = file.path(output_path, "dist_by_aqa")
 PlotSuperFlameRiverDist(geodata, output_path)

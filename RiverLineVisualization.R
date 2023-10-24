@@ -47,6 +47,12 @@
 #          "FP_Cryptophyta", "FP_YellowSubs",
 #          "latitude", "longitude", "Dist")
 
+pool_start <- c(0, 60.900, 69.075, 92.746, 136.185, 158.099, 279.011, 404.837)
+pool_end <- c(60.378, 68.220, 91.834, 135.715, 158.097, 279.007, 404.836, 528.604)
+pool_centers <- c(30.1890, 64.56, 80.454, 114.231, 147.141, 218.553, 341.923, 466.721)
+pool_names <- c("loc", "bra", "dre", "mar", "sta", "peo", "lag", "alt")
+pool_info <- data.frame(pool_names, pool_start, pool_end, pool_centers)
+
 PlotSuperFlameRiverDist <- function(geodata, dir) {
 
   commonTheme_map <- list(
@@ -61,7 +67,7 @@ PlotSuperFlameRiverDist <- function(geodata, dir) {
   
   # scale_colour_gradientn(colours = color.palette(n=100), 
   # limits=a_1_99tile, oob = scales::squish),
-  theme(legend.position = c(.02, .45),
+  theme(legend.position = c(.8, .8),
         legend.justification = c(0,0), 
         legend.background = element_rect(fill = NA, colour=NA),
         legend.text=element_text(size=8),
@@ -80,30 +86,58 @@ PlotSuperFlameRiverDist <- function(geodata, dir) {
          label.position = 'top')
   )
 
+  #custom color palette
+  colors_map = c( "#0a9396", "#005f73", "#355070", '#bb3e03', '#e09f3e', '#606c38', "#a7c957")
+  
   #Identify variables in dataset to plot
   plotvars_i <- names(geodata)
 
-  # var_i = "CO2Sat"
+  var_i = "NO3_mgL"
 
   for (var_i in plotvars_i) {
     
   data_i <- geodata %>% 
-    select(Dist, any_of(var_i), AQUA_CODE) %>% 
+    select(Dist, any_of(var_i), AQUA_DESC) %>% 
     filter(!is.na(var_i))
-
-  data_i$AQUA_CODE <- factor(data_i$AQUA_CODE, levels=c("MNC", "CB", "SC", "TRC", "CFL", "LM", "N"))
   
-  fig <- ggplot(data_i, aes(x=Dist/1000, y=.data[[var_i]], color=AQUA_CODE))+
-    geom_point(size = 2, alpha=0.7)+
-    scale_color_brewer("Aquatic area type", palette="Dark2")+
-    labs(x = "River distance (km)")+
-    theme_classic()
+
+  # data_i$AQUA_CODE <- factor(data_i$AQUA_CODE, levels=c("MNC", "CB", "SC", "TRC", "CFL", "LM", "N"))
+  data_i$AQUA_DESC <- factor(data_i$AQUA_DESC, levels=c("Main Navigation Channel", 
+                                                        "Channel Border", 
+                                                        "Side Channel", 
+                                                        "Tributary Channel", 
+                                                        "Contiguous Floodplain Lake", 
+                                                        "Lake Michigan", 
+                                                        "Non-aquatic"))
+  data_i <- data_i %>%
+    arrange(AQUA_DESC)
+  
+  
+  fig <- ggplot(data_i, aes(x=Dist/1000, y=.data[[var_i]], color=AQUA_DESC))+
+    geom_vline(xintercept=pool_end, linetype="longdash", color="lightgray")+
+    geom_point(aes(size = AQUA_DESC), alpha=0.7)+
+    # annotate(geom="text", x=15, y = Inf, label="Pool boundaries", vjust = 1.5, size=2.5, color="lightgray")+
+    scale_size_manual("Aquatic areas", values=c(0.5, rep(1,10)))+
+    scale_color_manual("Aquatic areas", values = colors_map)+
+    labs(x = "River distance (km)", y="NO3 mg/L")+
+    theme_classic()+
+    theme(legend.position = "bottom",
+          legend.justification = c(0,0), 
+          legend.background = element_rect(fill = NA, colour=NA),
+          legend.text=element_text(size=8),
+          legend.title=element_text(size=10),
+          legend.title.align = 0.5,
+          legend.key.height = unit(.4, "cm"),
+          legend.key.width = unit(1.2, "cm"), 
+          panel.border=element_rect(fill=NA, colour="black"), 
+          legend.direction="vertical")+
+    guides(color = guide_legend(ncol = 3), size = guide_legend(ncol=3))
   
   print(fig)
   
   ggsave(file.path(dir,
                    paste("riverdist_", var_i, ".png", sep="")),
-         fig, width = 6, height = 6, units = "in")
+         fig, width = 6, height = 4, units = "in")
   
   }  
 }  
