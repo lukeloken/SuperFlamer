@@ -30,9 +30,13 @@ merge_aquatic_areas <- function(aqa_path, processed_path){
   df <- bind_rows(pools, .id='Pool') %>%
     select(-OBJECTID)
   
+  points <- readRDS(file.path(flame_path, paste(flame_file, ".rds", sep="")))
+  points <- st_as_sf(points)
+  points <- st_transform(points, crs=projection)
+  
   points_aqa <- st_intersection(points, df)
   
-  saveRDS(points_aqa, file.path(processed_path, "flame_intersected_aqa.rds")) #give this a more descriptive name
+  saveRDS(points_aqa, file.path(processed_path, paste(date, "flame_intersected_aqa.rds", sep=""))) #give this a more descriptive name
   
   # #filter out specific aquatic areas and save
   # main_channel <- df %>% 

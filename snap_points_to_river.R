@@ -11,7 +11,7 @@
 # flame_path <- "C:/Users/slafond-hudson/DOI/Loken, Luke C - FLAMeIllinois/Data/Merged_Illinois_Jul_2023/Shapefiles"
 
 # Read in flame data and snap to river network object
-points <- readRDS(file.path(processed_path, "flame_intersected_aqa.rds"))
+# points <- readRDS(file.path(processed_path, "flame_intersected_aqa.rds"))
 # 
 # network_clean <- readRDS(file.path(spatial_dir, "IL_network.rds"))
 
@@ -88,7 +88,7 @@ snap_points_to_river <- function(points, projection, processed_path, flame_file)
   # 
   
 #somehow get flame shapefile name in function so the output can be named automatically
-  saveRDS(points, file=file.path(processed_path, paste(flame_file, "_all_snapped", ".rds", sep="")))
+  saveRDS(points, file=file.path(processed_path, paste(flame_file, date, "_all_snapped", ".rds", sep="")))
   # saveRDS(points_mc, file=file.path(processed_path, paste(flame_file, "_mc_snapped", ".rds", sep="")))
   # saveRDS(points_ao, file=file.path(processed_path, paste(flame_file, "_ao_snapped", ".rds", sep="")))  
   # saveRDS(points_fl, file=file.path(processed_path, paste(flame_file, "_fl_snapped", ".rds", sep="")))

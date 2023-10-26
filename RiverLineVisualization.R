@@ -47,14 +47,14 @@
 #          "FP_Cryptophyta", "FP_YellowSubs",
 #          "latitude", "longitude", "Dist")
 
-pool_start <- c(0, 60.900, 69.075, 92.746, 136.185, 158.099, 279.011, 404.837)
-pool_end <- c(60.378, 68.220, 91.834, 135.715, 158.097, 279.007, 404.836, 528.604)
-pool_centers <- c(30.1890, 64.56, 80.454, 114.231, 147.141, 218.553, 341.923, 466.721)
-pool_names <- c("loc", "bra", "dre", "mar", "sta", "peo", "lag", "alt")
-pool_info <- data.frame(pool_names, pool_start, pool_end, pool_centers)
-
 PlotSuperFlameRiverDist <- function(geodata, dir) {
 
+  pool_start <- c(0, 60.900, 69.075, 92.746, 136.185, 158.099, 279.011, 404.837)
+  pool_end <- c(60.378, 68.220, 91.834, 135.715, 158.097, 279.007, 404.836, 528.604)
+  pool_centers <- c(30.1890, 64.56, 80.454, 114.231, 147.141, 218.553, 341.923, 466.721)
+  pool_names <- c("loc", "bra", "dre", "mar", "sta", "peo", "lag", "alt")
+  pool_info <- data.frame(pool_names, pool_start, pool_end, pool_centers)
+  
   commonTheme_map <- list(
   theme(axis.text.x=element_blank(), 
         axis.text.y=element_blank(), 
@@ -92,7 +92,7 @@ PlotSuperFlameRiverDist <- function(geodata, dir) {
   #Identify variables in dataset to plot
   plotvars_i <- names(geodata)
 
-  var_i = "NO3_mgL"
+  var_i = "chlor_ugL"
 
   for (var_i in plotvars_i) {
     
@@ -119,7 +119,7 @@ PlotSuperFlameRiverDist <- function(geodata, dir) {
     # annotate(geom="text", x=15, y = Inf, label="Pool boundaries", vjust = 1.5, size=2.5, color="lightgray")+
     scale_size_manual("Aquatic areas", values=c(0.5, rep(1,10)))+
     scale_color_manual("Aquatic areas", values = colors_map)+
-    labs(x = "River distance (km)", y="NO3 mg/L")+
+    labs(x = "River distance (km)")+
     theme_classic()+
     theme(legend.position = "bottom",
           legend.justification = c(0,0), 
