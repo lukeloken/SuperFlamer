@@ -87,7 +87,7 @@ PlotSuperFlameRiverDist <- function(geodata, dir) {
   )
 
   #custom color palette
-  colors_map = c( "#0a9396", "#005f73", "#355070", '#bb3e03', '#e09f3e', '#606c38', "#a7c957")
+  colors_map = c("black", "#005f73", "#0a9396", '#bb3e03', '#e09f3e', '#606c38', "#a7c957")
   
   #Identify variables in dataset to plot
   plotvars_i <- names(geodata)
@@ -112,7 +112,7 @@ PlotSuperFlameRiverDist <- function(geodata, dir) {
   data_i <- data_i %>%
     arrange(AQUA_DESC)
   
-  
+  #plot all data with colors by aquatic area
   fig <- ggplot(data_i, aes(x=Dist/1000, y=.data[[var_i]], color=AQUA_DESC))+
     geom_vline(xintercept=pool_end, linetype="longdash", color="lightgray")+
     geom_point(aes(size = AQUA_DESC), alpha=0.7)+
@@ -135,7 +135,28 @@ PlotSuperFlameRiverDist <- function(geodata, dir) {
   
   print(fig)
   
-  ggsave(file.path(dir,
+  ggsave(file.path(output_path, "dist_by_aqua",
+                   paste("riverdist_", var_i, ".png", sep="")),
+         fig, width = 6, height = 4, units = "in")
+  
+  
+  #plot just main channel data
+  data_i <- data_i %>% 
+    filter(AQUA_DESC=="Main Navigation Channel")
+  
+  fig <- ggplot(data_i, aes(x=Dist/1000, y=.data[[var_i]]), color="black")+
+    geom_vline(xintercept=pool_end, linetype="longdash", color="lightgray")+
+    geom_point(aes(size = AQUA_DESC), alpha=0.7)+
+    # annotate(geom="text", x=15, y = Inf, label="Pool boundaries", vjust = 1.5, size=2.5, color="lightgray")+
+    scale_size_manual("Aquatic areas", values=c(0.5, rep(1,10)))+
+    scale_color_manual("Aquatic areas", values = colors_map)+
+    labs(x = "River distance (km)")+
+    theme_classic()+
+    theme(legend.position = "none")
+  
+  print(fig)
+  
+  ggsave(file.path(output_path, "main_channel",
                    paste("riverdist_", var_i, ".png", sep="")),
          fig, width = 6, height = 4, units = "in")
   

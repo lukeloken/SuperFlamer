@@ -10,11 +10,11 @@ library(riverdist)
 aqa_path <- "C:/Users/slafond-hudson/DOI/Loken, Luke C - FLAMeIllinois/Data/AquaticAreas"
 processed_path <- "C:/Users/slafond-hudson/DOI/Loken, Luke C - FLAMeIllinois/Data/ProcessedObjects"
 spatial_dir <- "C:/Users/slafond-hudson/DOI/Loken, Luke C - FLAMeIllinois/SpatialData"
-output_path <- "C:/Users/slafond-hudson/DOI/Loken, Luke C - FLAMeIllinois/Data/Merged_Illinois_May_2022/RiverDist_plots"
-flame_path <- "C:/Users/slafond-hudson/DOI/Loken, Luke C - FLAMeIllinois/Data/Merged_Illinois_May_2022/Shapefiles"
-flame_file <- "Merged_Illinois_May_2022_Shapefile_AllData"
+output_path <- "C:/Users/slafond-hudson/DOI/Loken, Luke C - FLAMeIllinois/Data/Merged_Illinois_Nov_2022/RiverDist_plots"
+flame_path <- "C:/Users/slafond-hudson/DOI/Loken, Luke C - FLAMeIllinois/Data/Merged_Illinois_Nov_2022/Shapefiles"
+flame_file <- "Merged_Illinois_Nov_2022_Shapefile_AllData"
 
-date <- "May_2022"
+date <- "Nov_2022"
 
 projection = "+init=epsg:26915"
 
@@ -22,6 +22,7 @@ projection = "+init=epsg:26915"
 source("./merge_aquatic_areas.R")
 source("./snap_points_to_river.R")
 source("./RiverLineVisualization.R")
+source("./VisualizeAquaticAreasBoxplot.R")
 
 ###########################
 
@@ -54,7 +55,7 @@ network_clean <- readRDS(file.path(spatial_dir, "river_network.rds"))
 # Step 3: snap points to river network
 
 #first read in flame data to snap
-points <- readRDS(file.path(processed_path, paste(date, "flame_intersected_aqa.rds", sep="")))
+points <- readRDS(file.path(processed_path, "1_flame_intersected", paste(date, "flame_intersected_aqa.rds", sep="")))
 
 #then snap function
 snap_points_to_river(points, projection, processed_path, flame_file)
@@ -62,11 +63,7 @@ snap_points_to_river(points, projection, processed_path, flame_file)
 #Step 4: plot flame data by river distance
 
 #read in snapped flame data
-points <- readRDS(file=file.path(processed_path, paste(flame_file, date, "_all_snapped", ".rds", sep="")))
-# points_mc <- readRDS(file=file.path(processed_path, paste(flame_file, "_mc_snapped", ".rds", sep="")))
-# points_ao <- readRDS(file=file.path(processed_path, paste(flame_file, "_ao_snapped", ".rds", sep="")))  
-# points_fl <- readRDS(file=file.path(processed_path, paste(flame_file, "_fl_snapped", ".rds", sep="")))
-# points_tribs <- readRDS(file=file.path(processed_path, paste(flame_file, "_tribs_snapped", ".rds", sep="")))
+points <- readRDS(file=file.path(processed_path, "2_flame_snapped", paste(flame_file, date, "_all_snapped", ".rds", sep="")))
 
 #rename desired points object to geodata and select subset of flame variables
 geodata <- points %>%
@@ -76,7 +73,8 @@ geodata <- points %>%
          "H2O", "barom_mmHg",
          "NO3_uM", "NO3_mgL", 
          "abs254", "abs350",
-         "water_temp", "depth",
+         # "water_temp", 
+         # "depth",
          "temp", "specCond", 
          "pH", "pressure",
          "chlor_RFU", "chlor_ugL",
@@ -84,13 +82,15 @@ geodata <- points %>%
          "BGApc_RFU", "BGApc_ugL", 
          "turb_FNU", 
          "fDOM_RFU", "fDOM_QSU",
-         # "Turb_C6P", "CDOM_C6P", 
-         # "CHL_a_C6P","Brightners",
+         # "Turb_C6P", 
+         # "CDOM_C6P",
+         # "CHL_a_C6P",
+         # "Brightners",
          "Fluorescein",
          # "Ref_Fuel",
-         # "Temp_C6P",  
+         # "Temp_C6P",
          # "CDOM_C6P_wt", "CDOM_C6P_turb",
-         # "CHL_a_C6P_wt", 
+         # "CHL_a_C6P_wt",
          # "CHL_a_C6P_turb", "Fluorescein_turb",
          # "Brightners_wt", "Brightners_turb",
          # "Fluorescein_wt",
@@ -101,8 +101,5 @@ geodata <- points %>%
          "latitude", "longitude", "Dist",
          "AQUA_CODE", "AQUA_DESC", "Pool")
 
-output_path = file.path(output_path, "dist_by_aqa")
 PlotSuperFlameRiverDist(geodata, output_path)
-
-#next, need to somehow map flame data onto aquatic areas so that flame dataframe has a column for aquatic area
-#merge?
+plot_aqa_boxplots(geodata, output_path)

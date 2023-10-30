@@ -36,26 +36,7 @@ merge_aquatic_areas <- function(aqa_path, processed_path){
   
   points_aqa <- st_intersection(points, df)
   
-  saveRDS(points_aqa, file.path(processed_path, paste(date, "flame_intersected_aqa.rds", sep=""))) #give this a more descriptive name
-  
-  # #filter out specific aquatic areas and save
-  # main_channel <- df %>% 
-  #   filter(AQUA_CODE == "MNC")
-  # 
-  # saveRDS(main_channel, file.path(processed_path, "main_channel.rds"))
-  # 
-  # aquatic_only <- df %>%
-  #   filter(LAND_WATER == "Water")
-  # 
-  # saveRDS(aquatic_only, file.path(processed_path, "aquatic_only.rds"))
-  # 
-  # trib_channel <- df %>%
-  #   filter(AQUA_CODE == "TRC")
-  # 
-  # saveRDS(trib_channel, file.path(processed_path, "trib_channel.rds"))
-  # 
-  # floodplain_lakes <- df %>%
-  #   filter(AQUA_CODE == c("CFSA", "IFL", "CFL"))
-  # saveRDS(floodplain_lakes, file.path(processed_path, "floodplain_lakes.rds"))
+  saveRDS(points_aqa, file.path(processed_path, "1_flame_intersected", paste(date, "flame_intersected_aqa.rds", sep=""))) #give this a more descriptive name
+
 }
 
