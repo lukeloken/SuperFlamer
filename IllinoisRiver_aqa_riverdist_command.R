@@ -42,6 +42,7 @@ network_clean <- cleanup(IL_network)
 #dissolve: y
 #Insert vertices: y
 #Minimum distance to use: 1
+####network_clean10 uses 10
 #Please identify segment number: 1
 #Please identify vertex number: 540421
 #Accept mouth assignment: y
