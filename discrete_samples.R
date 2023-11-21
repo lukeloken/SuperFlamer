@@ -37,45 +37,6 @@ discrete["Month"][discrete["Month"]==3] <- "Nov"
 discrete["Month"][discrete["Month"]==4] <- "Mar"
 discrete["Month"][discrete["Month"]==5] <- "Jul"
 
-
-# # file_i = "Merged_Illinois_May_2022/Merged_Illinois_May_2022_Samples.csv"
-# list_all <- lapply(file.path(data_path, discrete_files), read.csv)
-# names(list_all) <- c("May", "Aug", "Nov", "Mar", "Jul")
-# # list_all <- lapply(list_all, as.character)
-# df_all <- bind_rows(list_all, .id="Month")
-# # df_all <- rbindlist(list(list_all))
-# 
-# # df_all <- data.frame()
-
-# 
-# for (1:length(discrete_files)){
-#   discrete <- read_csv(file_i)
-#   df_all <- bind_rows(df_all, discrete)
-# }
-# 
-# 
-# discrete <- discrete_files %>% map_df(read_csv(.))
-
-# for (file_i in discrete_files){
-#   discrete_all <- data.frame()
-#   
-#   discrete <- read_csv(file.path(data_path, file_i))
-#   discrete_all <- bind_rows(discrete_all, discrete)
-#   return(discrete_all)
-#   # 
-#   #   st_as_sf(coords=c("longitude", "latitude"), crs = 4326)%>%
-#   #   st_transform(crs=26915)
-#   # 
-#   # aqa <- readRDS(file.path(processed_path, "aquatic_areas_all.rds")) %>%
-#   # st_transform(crs=26915) %>%
-#   # st_as_sf()
-#   # aqa_merge <-st_union(aqa)
-#   # 
-#   # p2 <- st_difference(discrete, aqa_merge)
-#   
-#   # discrete_all <- bind_rows(discrete_all, p2)
-# }
-
 #read in discrete data and set the crs
 # discrete <- read_csv(file.path(data_path, "Merged_Illinois_Nov_2022_Samples.csv"))
 discrete <- st_as_sf(discrete, coords=c("longitude", "latitude"), crs=4326)
