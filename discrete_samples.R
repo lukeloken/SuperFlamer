@@ -55,9 +55,22 @@ p <- st_difference(discrete, aqa_merge)
 #merge aquatic areas polygons with discrete data
 p2 <- st_intersection(discrete, aqa)
 
+projection = "+init=epsg:26915"
+
+#commented out save line in snap_points_to_river.R first
+points <- snap_points_to_river(p2, projection, processed_path, flame_file)
+#this gets things in UTM, but I think I want to transform the lat/lon back 
+points <- st_transform(points, crs=4326)
+points <- points%>%
+  mutate(long = unlist(map(points$geometry,1)),
+         lat = unlist(map(points$geometry,2)))
+write_csv(points, file.path(processed_path, '2_flame_snapped', 
+                    'discrete_snapped_all.csv'))
+# saveRDS(points, file.path(processed_path, '2_flame_snapped',
+#                           'discrete_snapped_all.csv'))
 
 discrete_map <- ggplot()+
   geom_sf(data=aqa)+
-  geom_sf(data=discrete, aes(geometry = geometry, color=Month), size=1)+
+  geom_sf(data=p, aes(geometry = geometry, color=Month), size=1)+
   theme_classic()
 print(discrete_map)

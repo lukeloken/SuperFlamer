@@ -29,8 +29,9 @@ snap_points_to_river <- function(points, projection, processed_path, flame_file)
   #snap flame data points to Illinois River network object
   snapped_all <- xy2segvert(points$long, points$lat, rivers=network_clean)
 
-  points$Dist <- unlist(network_clean$cumuldist)[snapped_all$vert]
-  points$snapped_dist <- unlist(network_clean$cumuldist)[snapped_all$snapdist]
+  points$Dist_m <- unlist(network_clean$cumuldist)[snapped_all$vert]
+  points$snapped_dist_m <- unlist(network_clean$cumuldist)[snapped_all$snapdist]
 
-  saveRDS(points, file=file.path(processed_path, "2_flame_snapped", paste(flame_file, date, "_all_snapped", ".rds", sep="")))
+  return(points)
+  # saveRDS(points, file=file.path(processed_path, "2_flame_snapped", paste(flame_file, date, "_all_snapped", ".rds", sep="")))
 }
