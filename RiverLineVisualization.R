@@ -97,7 +97,7 @@ PlotSuperFlameRiverDist <- function(geodata, dir) {
   for (var_i in plotvars_i) {
     
   data_i <- geodata %>% 
-    select(Dist, any_of(var_i), AQUA_DESC) %>% 
+    select(Dist_m, any_of(var_i), AQUA_DESC) %>% 
     filter(!is.na(var_i))
   
 
@@ -113,7 +113,7 @@ PlotSuperFlameRiverDist <- function(geodata, dir) {
     arrange(AQUA_DESC)
   
   #plot all data with colors by aquatic area
-  fig <- ggplot(data_i, aes(x=Dist/1000, y=.data[[var_i]], color=AQUA_DESC))+
+  fig <- ggplot(data_i, aes(x=Dist_m/1000, y=.data[[var_i]], color=AQUA_DESC))+
     geom_vline(xintercept=pool_end, linetype="longdash", color="lightgray")+
     geom_point(aes(size = AQUA_DESC), alpha=0.7)+
     # annotate(geom="text", x=15, y = Inf, label="Pool boundaries", vjust = 1.5, size=2.5, color="lightgray")+
@@ -144,7 +144,7 @@ PlotSuperFlameRiverDist <- function(geodata, dir) {
   data_i <- data_i %>% 
     filter(AQUA_DESC=="Main Navigation Channel")
   
-  fig <- ggplot(data_i, aes(x=Dist/1000, y=.data[[var_i]]), color="black")+
+  fig <- ggplot(data_i, aes(x=Dist_m/1000, y=.data[[var_i]]), color="black")+
     geom_vline(xintercept=pool_end, linetype="longdash", color="lightgray")+
     geom_point(aes(size = AQUA_DESC), alpha=0.7)+
     # annotate(geom="text", x=15, y = Inf, label="Pool boundaries", vjust = 1.5, size=2.5, color="lightgray")+

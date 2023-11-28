@@ -14,7 +14,7 @@ plot_aqa_boxplots <- function(geodata, output_path){
   for (var_i in plotvars_i) {
     
     data_i <- points %>% 
-      select(Dist, any_of(var_i), AQUA_DESC) %>% 
+      select(Dist_m, any_of(var_i), AQUA_DESC) %>% 
       filter(!is.na(var_i))
   
   # points$AQUA_CODE <- factor(points$AQUA_CODE, levels=c("MNC", "CB", "SC", "TRC", "CFL", "LM", "N"))

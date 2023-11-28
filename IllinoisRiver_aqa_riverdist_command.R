@@ -7,14 +7,15 @@ library(sf)
 library(riverdist)
 
 #File paths
-aqa_path <- "C:/Users/slafond-hudson/DOI/Loken, Luke C - FLAMeIllinois/Data/AquaticAreas"
+# aqa_path <- "C:/Users/slafond-hudson/DOI/Loken, Luke C - FLAMeIllinois/Data/AquaticAreas"
+aqa_path <- "C:/Users/slafond-hudson/DOI/WQP Prioritized Constituents Project - Task 2 Carbon and Nutrients in the IRB/GIS/Aquatic Areas Loken Edits"
 processed_path <- "C:/Users/slafond-hudson/DOI/Loken, Luke C - FLAMeIllinois/Data/ProcessedObjects"
 spatial_dir <- "C:/Users/slafond-hudson/DOI/Loken, Luke C - FLAMeIllinois/SpatialData"
-output_path <- "C:/Users/slafond-hudson/DOI/Loken, Luke C - FLAMeIllinois/Data/Merged_Illinois_Nov_2022/RiverDist_plots"
-flame_path <- "C:/Users/slafond-hudson/DOI/Loken, Luke C - FLAMeIllinois/Data/Merged_Illinois_Nov_2022/Shapefiles"
-flame_file <- "Merged_Illinois_Nov_2022_Shapefile_AllData"
+output_path <- "C:/Users/slafond-hudson/DOI/Loken, Luke C - FLAMeIllinois/Data/Merged_Illinois_Aug_2022/RiverDist_plots"
+flame_path <- "C:/Users/slafond-hudson/DOI/Loken, Luke C - FLAMeIllinois/Data/Merged_Illinois_Aug_2022/Shapefiles"
+flame_file <- "Merged_Illinois_Aug_2022_Shapefile_AllData"
 
-date <- "Nov_2022"
+date <- "Aug_2022"
 
 projection = "+init=epsg:26915"
 
@@ -99,7 +100,8 @@ geodata <- points %>%
          # "FP_Trans", "FP_GreenAlgae",
          # "FP_BlueGreen", "FP_Diatoms",
          # "FP_Cryptophyta", "FP_YellowSubs",
-         "latitude", "longitude", "Dist",
+         "latitude", "longitude",
+         "Dist_m",
          "AQUA_CODE", "AQUA_DESC", "Pool")
 
 PlotSuperFlameRiverDist(geodata, output_path)
