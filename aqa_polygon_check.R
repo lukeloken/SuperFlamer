@@ -3,7 +3,7 @@ dir <- "C:/Users/slafond-hudson/DOI/Loken, Luke C - FLAMeIllinois/Data/Processed
 points_aqa <- readRDS(file.path(dir, "all_tripsflame_intersected_aqa.rds"))
 
 p <- points_aqa %>%
-  select(AQUA_CODE, AQUA_DESC, CH4_Dry, Pool, geometry, Name)
+  select(date_time, geometry, AQUA_CODE, AQUA_DESC, CH4_Dry, Pool, Name)
 
 p2 <- p%>% filter(AQUA_CODE != "MNC", AQUA_CODE != "CB")
 
