@@ -5,6 +5,7 @@ flame_file <- "Merged_Illinois_May_2022_Jul_2023_Shapefile_AllData.rds"
 
 #original flame data
 points_all <- readRDS(file.path(flame_path, flame_file))
+points_all <- st_as_sf(points_all)
 
 #intersected with aquatic areas polygons
 points_aqa <- readRDS(file.path(dir, "1_flame_intersected", "all_tripsflame_intersected_aqa.rds"))
