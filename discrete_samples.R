@@ -10,7 +10,7 @@ library(data.table)
 
 #paths
 data_path <- "C:/Users/slafond-hudson/DOI/Loken, Luke C - FLAMeIllinois/Data"
-aqa_path <- "C:/Users/slafond-hudson/DOI/Loken, Luke C - FLAMeIllinois/Data/AquaticAreas"
+aqa_path <- "C:/Users/slafond-hudson/DOI/WQP Prioritized Constituents Project - Task 2 Carbon and Nutrients in the IRB/GIS/Aquatic Areas Loken Edits"
 processed_path <- "C:/Users/slafond-hudson/DOI/Loken, Luke C - FLAMeIllinois/Data/ProcessedObjects"
 # flame_file <- "Merged_Illinois_Nov_2022_Shapefile_AllData"
 
@@ -44,16 +44,22 @@ discrete <- st_transform(discrete, crs=26915)
 head(discrete$geometry)
 
 #read in aquatic areas and merge all polygons into one polygon
-aqa <- readRDS(file.path(processed_path, "aquatic_areas_all.rds"))
-st_transform(aqa, crs=26915)
-st_as_sf(aqa)
-aqa_merge <-st_union(aqa)
+all_files <- list.files(path = aqa_path, pattern = "_new_loken.shp")
+load_files <- all_files[!grepl(".xml", all_files)]
+pools <- lapply(file.path(aqa_path, load_files), st_read)
+
+names(pools) <- c("alt", "bra", "dre", "lag", "loc", "mar", "or1", "p26", "peo", "sta")
+
+#merge all pools
+df <- bind_rows(pools, .id='Pool') %>%
+  select(-OBJECTID)
+single_df <- st_union(df)
 
 #return discrete points in that aren't covered by aqa
-p <- st_difference(discrete, aqa_merge)
+p <- st_difference(discrete, single_df)
 
 #merge aquatic areas polygons with discrete data
-p2 <- st_intersection(discrete, aqa)
+p2 <- st_intersection(discrete, df)
 
 projection = "+init=epsg:26915"
 
@@ -70,7 +76,7 @@ write_csv(points, file.path(processed_path, '2_flame_snapped',
 #                           'discrete_snapped_all.csv'))
 
 discrete_map <- ggplot()+
-  geom_sf(data=aqa)+
-  geom_sf(data=p, aes(geometry = geometry, color=Month), size=1)+
+  geom_sf(data=single_df)+
+  geom_sf(data=p2, aes(geometry = geometry, color=Month), size=2, alpha=0.8)+
   theme_classic()
 print(discrete_map)

@@ -33,6 +33,9 @@ merge_aquatic_areas <- function(aqa_path, processed_path){
   #merge all pools
   df <- bind_rows(pools, .id='Pool') %>%
     select(-OBJECTID)
+  single_df <- st_union(df)
+  
+  saveRDS(single_df, file.path(processed_path, "new_aqa_loken_merged.rds"))
   
   points <- readRDS(file.path(flame_path, flame_file))
   points <- st_as_sf(points)
