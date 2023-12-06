@@ -76,8 +76,7 @@ merge_aquatic_areas <- function(aqa_path, processed_path){
  
  #frequency of flame points in each aquatic area type 
   aqa_count <- points_aqa %>% count(AQUA_DESC)
-  
-  print("AQUA_CODEs in points_aqa")
+
   print(unique(points_aqa$AQUA_CODE))
   
   #frequency of flame points in each named backwater

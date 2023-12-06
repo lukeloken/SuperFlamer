@@ -9,6 +9,7 @@ library(riverdist)
 library(data.table)
 
 source("./snap_points_to_river.R")
+network_clean <- readRDS(file.path(spatial_dir, "river_network.rds"))
 
 #paths
 data_path <- "C:/Users/slafond-hudson/DOI/Loken, Luke C - FLAMeIllinois/Data"
@@ -55,18 +56,25 @@ names(pools) <- c("alt", "bra", "dre", "lag", "loc", "mar", "or1", "p26", "peo",
 #merge all pools
 df <- bind_rows(pools, .id='Pool') %>%
   select(-OBJECTID)
-single_df <- st_union(df)
+unique(df$AQUA_CODE)
 
 #return discrete points in that aren't covered by aqa
+single_df <- st_union(df)
 p <- st_difference(discrete, single_df)
+if(nrow(p)>0) { print(nrow(p)) & print("points fall outside aquatic areas polygons")
+}else if(nrow(p)==0){print("all points fall within aquatic areas polygons")}
 
 #merge aquatic areas polygons with discrete data
-p2 <- st_intersection(discrete, df)
+discrete_aqa <- st_intersection(discrete, df)
 
 projection = "+init=epsg:26915"
 
+#checks
+aqa_count <- discrete_aqa %>% count(AQUA_DESC)
+print(unique(discrete_aqa$AQUA_CODE))
+
 #commented out save line in snap_points_to_river.R first
-points <- snap_points_to_river(p2, projection, processed_path, flame_file)
+points <- snap_points_to_river(discrete_aqa, projection, processed_path, flame_file)
 
 #this gets things in UTM, but I think I want to transform the lat/lon back 
 points <- st_transform(points, crs=4326)
@@ -97,9 +105,9 @@ discrete_tribs <- ggplot()+
   theme_classic()
 print(discrete_tribs)
 
-discrete_tribs2 <- ggplot()+
-  geom_point(data=tribs, aes(Dist_m/1000, 1, color=Month), size=2, alpha = 0.8)+
-  geom_text(data=tribs, aes(x=Dist_m/1000, 1, label=Sample.Notes), hjust=-1, angle=45)+
-  labs(xlab="River distance (km)")+
-  theme_classic()
-print(discrete_tribs2)
+# discrete_tribs2 <- ggplot()+
+#   geom_point(data=tribs, aes(Dist_m/1000, 1, color=Month), size=2, alpha = 0.8)+
+#   geom_text(data=tribs, aes(x=Dist_m/1000, 1, label=Sample.Notes), hjust=-1, angle=45)+
+#   labs(xlab="River distance (km)")+
+#   theme_classic()
+# print(discrete_tribs2)
