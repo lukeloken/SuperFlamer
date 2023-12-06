@@ -11,11 +11,12 @@ library(riverdist)
 aqa_path <- "C:/Users/slafond-hudson/DOI/WQP Prioritized Constituents Project - Task 2 Carbon and Nutrients in the IRB/GIS/Aquatic Areas Loken Edits"
 processed_path <- "C:/Users/slafond-hudson/DOI/Loken, Luke C - FLAMeIllinois/Data/ProcessedObjects"
 spatial_dir <- "C:/Users/slafond-hudson/DOI/Loken, Luke C - FLAMeIllinois/SpatialData"
-output_path <- "C:/Users/slafond-hudson/DOI/Loken, Luke C - FLAMeIllinois/Data/Merged_Illinois_Aug_2022/RiverDist_plots"
-flame_path <- "C:/Users/slafond-hudson/DOI/Loken, Luke C - FLAMeIllinois/Data/Merged_Illinois_Aug_2022/Shapefiles"
-flame_file <- "Merged_Illinois_Aug_2022_Shapefile_AllData"
+# output_path <- "C:/Users/slafond-hudson/DOI/Loken, Luke C - FLAMeIllinois/Data/Merged_Illinois_Aug_2022/RiverDist_plots"
+flame_path <- "C:/Users/slafond-hudson/DOI/Loken, Luke C - FLAMeIllinois/Data/Merged_Illinois_May_2022_Jul_2023/Shapefiles"
+flame_file <- "Merged_Illinois_May_2022_Jul_2023_Shapefile_AllData.rds"
 
-date <- "Aug_2022"
+
+# date <- "Aug_2022"
 
 projection = "+init=epsg:26915"
 
@@ -29,6 +30,16 @@ source("./VisualizeAquaticAreasBoxplot.R")
 
 # Step 1: merge aquatic areas
 merge_aquatic_areas(aqa_path, processed_path)
+
+#do this if need to merge for the first time
+points_aqa <- polygon_check_list[['points_aqa']]
+saveRDS(points_aqa, file.path(processed_path, "1_flame_intersected", paste("all_trips", "flame_intersected_aqa.rds", sep=""))) #give this a more descriptive name
+
+#do this if already merged, just need to load points_aqa
+points_aqa <- readRDS(file.path(processed_path, "1_flame_intersected/all_tripsflame_intersected_aqa.rds"))
+points <- st_as_sf(points)
+points <- st_transform(points, crs=projection)
+
 
 # Step 2: create river network
 # if already created, skip this step and load river_network.rds
