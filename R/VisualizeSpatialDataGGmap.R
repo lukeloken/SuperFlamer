@@ -130,7 +130,7 @@ PlotSuperFlameGGmap<-function(geodata, dir, Date, Site, meta, maps,
                            alpha = .2, size=3) +
                 commonTheme_map 
               
-              if (grepl("CH4", name) | grepl("chlor", name) | grepl("turb", name)){
+              if (grepl("CH4", name) | grepl("chlor", name) | grepl("turb", name) |grepl("BlueGreen", name)){
                 if(min(a_1_99tile)>0){
                   map <- map +
                     scale_colour_gradientn(colours = color.palette(n=100), 
