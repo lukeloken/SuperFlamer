@@ -87,12 +87,13 @@ PlotSuperFlameRiverDist <- function(geodata, dir) {
   )
 
   #custom color palette
-  colors_map = c("black", "#005f73", "#0a9396", '#bb3e03', '#e09f3e', '#606c38', "#a7c957")
+  colors_map = c("#2A5783", "black", "#005f73", "#0a9396", "#c1d5d2", "#b0d1b1", "#519d54", "#24693d", '#BB745a')
+  names(colors_map) <- levels(data_i$AQUA_DESC)
   
   #Identify variables in dataset to plot
   plotvars_i <- names(geodata)
 
-  var_i = "chlor_ugL"
+  # var_i = "chlor_ugL"
 
   for (var_i in plotvars_i) {
     
@@ -102,13 +103,15 @@ PlotSuperFlameRiverDist <- function(geodata, dir) {
   
 
   # data_i$AQUA_CODE <- factor(data_i$AQUA_CODE, levels=c("MNC", "CB", "SC", "TRC", "CFL", "LM", "N"))
-  data_i$AQUA_DESC <- factor(data_i$AQUA_DESC, levels=c("Main Navigation Channel", 
+  data_i$AQUA_DESC <- factor(points$AQUA_DESC, levels=c("Lake Michigan",
+                                                        "Main Navigation Channel", 
                                                         "Channel Border", 
-                                                        "Side Channel", 
+                                                        "Side Channel",
                                                         "Tributary Channel", 
                                                         "Contiguous Floodplain Lake", 
-                                                        "Lake Michigan", 
-                                                        "Non-aquatic"))
+                                                        "Contiguous Impounded",
+                                                        "Non-aquatic",
+                                                        "Other"))
   data_i <- data_i %>%
     arrange(AQUA_DESC)
   
