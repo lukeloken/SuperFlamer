@@ -5,39 +5,43 @@
 # output_path <- file.path("C:/Users/slafond-hudson/DOI/Loken, Luke C - FLAMeIllinois/Data/Merged_Illinois_Jul_2023", "boxplots")
 
 # points <- readRDS(file.path(processed_path, paste(flame_file, "_all_snapped", ".rds", sep="")))
-plot_aqa_boxplots <- function(geodata, output_path){
+plot_aqa_boxplots <- function(points, geodata, output_path, date){
 
   plotvars_i <- names(geodata)
 
-# var_i = "NO3_mgL"
+var_i = "NO3_mgL"
 
   for (var_i in plotvars_i) {
     
     data_i <- points %>% 
-      select(Dist_m, any_of(var_i), AQUA_DESC) %>% 
+      select(any_of(var_i), AQUA_DESC) %>% 
       filter(!is.na(var_i))
   
   # points$AQUA_CODE <- factor(points$AQUA_CODE, levels=c("MNC", "CB", "SC", "TRC", "CFL", "LM", "N"))
-    data_i$AQUA_DESC <- factor(points$AQUA_DESC, levels=c("Main Navigation Channel", 
+    data_i$AQUA_DESC <- factor(points$AQUA_DESC, levels=c("Lake Michigan",
+                                                        "Main Navigation Channel", 
                                                         "Channel Border", 
                                                         "Side Channel",
                                                         "Tributary Channel", 
                                                         "Contiguous Floodplain Lake", 
-                                                        "Lake Michigan",
-                                                        "Non-aquatic"))
+                                                        "Contiguous Impounded",
+                                                        "Non-aquatic",
+                                                        "Other"))
     
     data_i <- data_i %>%
       arrange(AQUA_DESC)
   
-    colors_map = c("black", "#005f73", "#0a9396", '#bb3e03', '#e09f3e', '#606c38', "#a7c957")
-  
-  
+    colors_map = c("#2A5783", "black", "#005f73", "#0a9396", "#c1d5d2", "#b0d1b1", "#519d54", "#24693d", '#BB745a')
+    names(colors_map) <- levels(data_i$AQUA_DESC)
+    
+    
     fig <- ggplot()+
       geom_boxplot(data = data_i, aes(AQUA_DESC, .data[[var_i]], fill=AQUA_DESC))+
       scale_fill_manual("Aquatic areas", values = colors_map)+
       labs(x="Aquatic area feature", y=var_i, title=date)+
+      scale_x_discrete(labels=c("LM", "MNC", "CB", "SC", "TRC", "CFL", "CIMP", "N", "Other"))+
       theme_classic()+
-      theme(axis.text.x = element_blank())+
+      # theme(axis.text.x = element_blank())+
       # theme(axis.text.x = element_text(angle=45, hjust=1))+
       theme(legend.position = "right",
             legend.justification = c(0,0), 
@@ -53,7 +57,7 @@ plot_aqa_boxplots <- function(geodata, output_path){
       theme(text=element_text(size=11))
     print(fig)
   
-    ggsave(file.path(output_path, "boxplots", paste(var_i, ".png", sep="")),
+    ggsave(file.path(output_path, "boxplots", date, paste(var_i, ".png", sep="")),
            fig, width = 6, height = 2.5, units = "in")
   }
 }

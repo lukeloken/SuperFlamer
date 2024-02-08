@@ -16,10 +16,7 @@
 # network_clean <- readRDS(file.path(spatial_dir, "IL_network.rds"))
 
 #transforms from sp object to sf object
-snap_points_to_river <- function(points, projection, processed_path, flame_file){
-  
-  points <- st_as_sf(points)
-  points <- st_transform(points, crs=projection)
+snap_points_to_river <- function(points, processed_path, flame_file){
   
   #separate long and lat from geometry column
   points <- points%>%
@@ -27,11 +24,15 @@ snap_points_to_river <- function(points, projection, processed_path, flame_file)
            lat = unlist(map(points$geometry,2)))
   
   #snap flame data points to Illinois River network object
+  print("starting snap")
+  print(format(Sys.time()))
   snapped_all <- xy2segvert(points$long, points$lat, rivers=network_clean)
 
   points$Dist_m <- unlist(network_clean$cumuldist)[snapped_all$vert]
-  points$snapped_dist_m <- unlist(network_clean$cumuldist)[snapped_all$snapdist]
+  # points$snapped_dist_m <- unlist(network_clean$cumuldist)[snapped_all$snapdist]
 
+  saveRDS(points, file=file.path(processed_path, "2_flame_snapped", paste(date, "_snapped.rds", sep="")))
+  
   return(points)
-  # saveRDS(points, file=file.path(processed_path, "2_flame_snapped", paste(flame_file, date, "_all_snapped", ".rds", sep="")))
+  
 }
