@@ -8,7 +8,7 @@ library(ggmap)
 library(riverdist)
 library(viridis)
 
-onedrive_dir <- 'C:/Users/lloken/OneDrive - DOI/FLAMeFox'
+onedrive_dir <- 'C:/Users/slafond-hudson/DOI/Loken, Luke C - FLAMeFox'
 
 
 # Google maps
@@ -18,7 +18,7 @@ onedrive_dir <- 'C:/Users/lloken/OneDrive - DOI/FLAMeFox'
 ###############################################################################################
 
 # GoogleKey
-GoogleAPIkey <- unlist(read.delim("H:/Private/Google/LokenAPIKey2.txt", stringsAsFactor=F, check.names = FALSE, header=F))
+GoogleAPIkey <- unlist(read.delim("C:/Users/slafond-hudson/keys/LokenAPIKey2.txt", stringsAsFactor=F, check.names = FALSE, header=F))
 
 register_google(key = as.character(GoogleAPIkey))
 
@@ -99,7 +99,14 @@ map_lake <-get_googlemap(center = c(-88.40, 44.00),
 
 ggmap(map_lake)
 
+map_lock <-get_googlemap(center = c(-88.125, 44.3795),
+                         size = c(500,500),
+                         zoom = 15,
+                         scale = 2,
+                         maptype = "satellite",
+                         key=GoogleAPIkey )
 
+ggmap(map_lock)
 
 #save maps
 # saveRDS(map, file=paste0(dropbox_dir, '/Data/SpatialData/UpperShipChannel_map1.rds'))
@@ -116,3 +123,4 @@ saveRDS(map_lower, file.path(onedrive_dir, 'SpatialData', 'FoxRiver_lower_ggmap.
 saveRDS(map_upper, file.path(onedrive_dir, 'SpatialData', 'FoxRiver_upper_ggmap.rds'))
 saveRDS(map_bay, file.path(onedrive_dir, 'SpatialData', 'FoxRiver_bay_ggmap.rds'))
 saveRDS(map_big, file.path(onedrive_dir, 'SpatialData', 'FoxRiver_big_ggmap.rds'))
+saveRDS(map_lock, file.path(onedrive_dir, 'SpatialData', 'FoxRiver_lock_ggmap.rds'))

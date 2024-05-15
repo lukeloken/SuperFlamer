@@ -25,7 +25,7 @@ source('remove_bad_data_Illinois.R')
 
 #Choose gg basemaps
 
-onedrive_dir <- 'C:/Users/lloken/OneDrive - DOI/FLAMeIllinois'
+onedrive_dir <- 'C:/Users/slafond-hudson/DOI/Loken, Luke C - FLAMeIllinois/'
 
 #Load the flame directories
 home_path <- "C:/Users/lloken/OneDrive - DOI/FLAMeIllinois/Data"
@@ -134,7 +134,7 @@ for(dir in directories_torun){
   # plotdiag=F will turn off sensorQC plotting (outlier flags)
   RunSuperFlame(dir, 
                 maps = maps, 
-                plotdiag = TRUE, 
+                plotdiag = FALSE, 
                 legend = "topleft", 
                 bad_data = bad_data)
   
