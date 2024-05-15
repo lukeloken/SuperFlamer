@@ -28,11 +28,11 @@ source('remove_bad_data_Illinois.R')
 onedrive_dir <- "C:/Users/lloken/DOI/FLAMeM - General"
 
 #Load the flame directories
-#fix this dupliation
+#fix this duplication
 home_path <- "C:/Users/lloken/DOI/FLAMeM - General/Data"
 
 map_pool8_upper <- readRDS(file.path(onedrive_dir, 'SpatialData', 'Pool8_upper_ggmap.rds'))
-
+map_pool19 <- readRDS(file.path(onedrive_dir, 'SpatialData', 'Pool19_ggmap.rds'))
 
 # bad_data <- remove_bad_data_Illinois()
 
@@ -42,23 +42,28 @@ dates_merge <- as.Date("2024-04-25")
 maps <- list(map_pool8_upper)
 
 
+#May 2024 (Pool 10-21)
+dates_merge <- seq(as.Date("2024-05-06"), as.Date("2024-05-10"), by = "days")
+maps <- list(map_pool19)
 
 # Load directories
 # Select directories by date are run.
 directories_all <- list.files(home_path)
 directories_dates <- which(!is.na(as.Date(directories_all)) & as.Date(directories_all) %in% dates_merge)
 directories_torun <- file.path(home_path, directories_all[directories_dates])
-directories_torun <- directories_torun[length(directories_torun)]
+# directories_torun <- directories_torun[length(directories_torun)]
 dir = directories_torun[1]
 for(dir in directories_torun){
  
   
   list.files(dir)
   
+  #e.g., "topleft" or "lowerright"
+  
   RunSuperFlame(dir, 
                 maps = maps, 
                 plotdiag = TRUE, 
-                legend = "lowerleft", 
+                legend = "topleft", 
                 # bad_data = bad_data
                 )
   

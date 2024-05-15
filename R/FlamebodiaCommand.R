@@ -18,6 +18,7 @@ source('R/RunAllSuperFlameScripts.R')
 source('R/MergeSampleTables.R')
 source('R/MergeMap.R')
 source('R/MergeChemistry.R')
+source('remove_bad_data_FLAMebodia.R')
 
 # If you need to install sensorQC use this command
 # install.packages("sensorQC", repos = c("http://owi.usgs.gov/R","http://cran.rstudio.com/"), dependencies = TRUE)
@@ -54,6 +55,7 @@ map_Mekong_north <- readRDS(file = file.path(onedrive_dir, 'SpatialData',
 map_Mekong_north2 <- readRDS(file = file.path(onedrive_dir, 'SpatialData',
                                               'MekongRiver_north2_ggmap.rds'))
 
+bad_data <- remove_bad_data_FLAMebodia()
 
 
 #Jan 2022 (Tonle Sap)
@@ -127,7 +129,7 @@ for(dir in directories_torun){
   
   
   # plotdiag=F will turn off sensorQC plotting (outlier flags)
-  RunSuperFlame(dir, maps = maps, plotdiag = TRUE)
+  RunSuperFlame(dir, maps = maps, plotdiag = TRUE, bad_data = bad_data)
   
   
 }
@@ -238,6 +240,8 @@ write.table(samples_merged, file = file.path(home_path, merge_name,
 #merge maps
 MergeMap(home_path, directories_merge, merge_name, maps = maps)
 
+
+
 #merge water chemistry from UCD, Hg, and Cambodia lab
 chem_path <- file.path(home_path, "WaterChemistry", "DataToMerge")
 chem_geo <- MergeChemistry(home_path, chem_path, 
@@ -246,7 +250,7 @@ chem_geo <- MergeChemistry(home_path, chem_path,
                            plot_title = plot_name, 
                            legend = "bottomleft",
                            title_location = "inside", 
-                           color_scale = "allchem")
+                           color_scale = "samplechem")
 
 
 

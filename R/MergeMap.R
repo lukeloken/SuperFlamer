@@ -218,6 +218,7 @@ MergeMap <- function(home_path,
               if (grepl("CH4", name) | 
                   grepl("CO2", name) | 
                   grepl("chlor", name) | 
+                  grepl("BGA", name) | 
                   grepl("turb", name)){
                 map <- map +
                   scale_colour_gradientn(colours = color.palette(n=100), 

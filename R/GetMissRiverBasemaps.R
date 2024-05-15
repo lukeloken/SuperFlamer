@@ -63,14 +63,29 @@ map_pool8_upper<-get_googlemap(center = c(-91.27, 43.84),
 # 
 ggmap(map_pool8_upper)
 
+# Pool 10 
+map_pool10<-get_googlemap(center = c(-91.125, 43),
+                               size = c(500,500),
+                               zoom = 10,
+                               scale = 2,
+                               maptype = "satellite",
+                               key=GoogleAPIkey )
+
+ggmap(map_pool10)
+
+# Pool 19
+map_pool19<-get_googlemap(center = c(-91.25, 40.62),
+                          size = c(550,550),
+                          zoom = 10,
+                          scale = 2,
+                          maptype = "satellite",
+                          key=GoogleAPIkey )
+
+ggmap(map_pool19)
+
 #save maps
-# saveRDS(map, file=paste0(dropbox_dir, '/Data/SpatialData/UpperShipChannel_map1.rds'))
-# saveRDS(map2, file=paste0(dropbox_dir, '/Data/SpatialData/UpperShipChannel_map2.rds'))
-# saveRDS(map_test, file.path(onedrive_dir, 'SpatialData', 'Tahoe_ggmap.rds'))
-# saveRDS(map_test, file.path(onedrive_dir, 'SpatialData', 'TonleSap_ggmap.rds'))
-# saveRDS(map_test, file.path(onedrive_dir, 'SpatialData', 'TonleSap2_ggmap.rds'))
-# saveRDS(map_upper, file.path(onedrive_dir, 'SpatialData', 'TonleSap_upper_ggmap.rds'))
-# saveRDS(map_lower, file.path(onedrive_dir, 'SpatialData', 'TonleSap_lower_ggmap.rds'))
-# saveRDS(map_confluence, file.path(onedrive_dir, 'SpatialData', 'TonleSap_confluence_ggmap.rds'))
 dir.create(file.path(onedrive_dir, 'SpatialData'))
+
 saveRDS(map_pool8_upper, file.path(onedrive_dir, 'SpatialData', 'Pool8_upper_ggmap.rds'))
+saveRDS(map_pool10, file.path(onedrive_dir, 'SpatialData', 'Pool10_ggmap.rds'))
+saveRDS(map_pool19, file.path(onedrive_dir, 'SpatialData', 'Pool19_ggmap.rds'))

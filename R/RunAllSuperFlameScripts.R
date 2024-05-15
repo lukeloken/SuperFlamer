@@ -76,8 +76,11 @@ RunSuperFlame<-function(dir, maps, bad_data = NULL, ...){
   correctdata <- RemoveErroneousData(trimdata, bad_data = bad_data)
   
   
-  if(as.Date(min(correctdata$DateTime, na.rm = TRUE)) > "2023-07-09" & 
-     as.Date(max(correctdata$DateTime, na.rm = TRUE)) < "2023-07-20"){
+  if(as.Date(min(correctdata$date_time, na.rm = TRUE)) > "2023-07-09" & 
+     as.Date(max(correctdata$date_time, na.rm = TRUE)) < "2023-07-20"){
+    
+    cat("\n", "Adjusting Fluorescein data because of differnet correction", "\n")
+    
     #change fluorescein during last Illinois River camapgin. Calibration was 10%
     correctdata$Fluorescein <- correctdata$Fluorescein * 10
     
@@ -85,18 +88,35 @@ RunSuperFlame<-function(dir, maps, bad_data = NULL, ...){
   
   #add if statement to avoid when no turner
   if("CDOM_C6P" %in% names(correctdata) & 
-     as.Date(min(correctdata$DateTime, na.rm = TRUE)) > "2022-11-06" & 
-     as.Date(max(correctdata$DateTime, na.rm = TRUE)) < "2023-07-20"){
+     as.Date(min(correctdata$date_time, na.rm = TRUE)) > "2022-11-06" & 
+     as.Date(max(correctdata$date_time, na.rm = TRUE)) < "2023-07-20"){
  
-  #First way using single turbiidty equation  
-   # correctdata <- TurnerTempTurbCorrect(correctdata, var = "CDOM_C6P", 
-  #                                      rho = 0.01, alpha = 0.006, temp = 25)
-  # correctdata <- TurnerTempTurbCorrect(correctdata, var = "Brightners",
-  #                                      rho = 0.014, alpha = NULL, temp = 25)
-  # correctdata <- TurnerTempTurbCorrect(correctdata, var = "Ref_Fuel",
-  #                                      rho = 0.0085, alpha = NULL, temp = 25)
+    cat("\n", "Applying temperature and turbidity corrections to Turner C6P data", "\n")
     
-    #new way using 3-component turbidity equation
+    
+  #First way using single turbidity equation  
+# 
+#     correctdata <- TurnerTempTurbCorrect(correctdata, var = "CDOM_C6P", 
+#                                          rho = 0.01, alpha = 0.006, temp = 25) 
+#     
+#     correctdata <- TurnerTempTurbCorrect(correctdata, var = "Brightners",
+#                                          rho = 0.014, alpha = NULL, temp = 25)
+#     
+#     correctdata <- TurnerTempTurbCorrect(correctdata, var = "Ref_Fuel",
+#                                          rho = 0.0085, alpha = NULL, temp = 25)
+    
+    #Variables that only have a temp correction
+    #(Lee et al. 2015; https://doi.org/10.5194/bg-12-3109-2015)
+    correctdata <- TurnerTempTurbCorrect(correctdata, var = "CHL_a_C6P",
+                                         rho = 0.01, alpha = NULL, temp = 25)
+    
+    
+    correctdata <- TurnerTempTurbCorrect(correctdata, var = "Fluorescein",
+                                         rho = 0.009, alpha = NULL, temp = 25)
+    
+    
+    #new way using 3-component turbidity equation 
+    #(Saraceno et al. 2017; https://doi.org/0.1002/lom3.10175)
     correctdata <- TurnerTempTurbCorrect(correctdata, var = "CDOM_C6P", 
                                          rho = 0.01, 
                                          alpha = 0.18, 
@@ -117,12 +137,6 @@ RunSuperFlame<-function(dir, maps, bad_data = NULL, ...){
                                          beta = 0.8,
                                          gamma = (-0.0098),
                                          temp = 25)
-    
-    correctdata <- TurnerTempTurbCorrect(correctdata, var = "Ref_Fuel",
-                                         rho = 0.0085, alpha = NULL, temp = 25)
-
-    correctdata <- TurnerTempTurbCorrect(correctdata, var = "Ref_Fuel",
-                                         rho = 0.0085, alpha = NULL, temp = 25)
     
     
   }
