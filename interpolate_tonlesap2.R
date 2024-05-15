@@ -7,7 +7,7 @@ library(rdgal)
 library(rgeos)
 library(dplyr)
 library(ggplot2)
-library(spdplyr)
+# library(spdplyr)
 library(gstat)
 library(geoR)
 library(spatstat)
@@ -20,81 +20,94 @@ library(doParallel)
 library(car)
 library(gstat)
 
-
+# gis_dir <- "P:/0368/GIS"
+#folder with gis layers
 gis_dir <- "C:/Users/lloken/OneDrive - DOI/GIS"
 
+#folder with flame data
 onedrive_dir <- 'C:/Users/lloken/OneDrive - DOI/FLAMebodia'
 
+#parameters for interpolation
 maxdist = 10
 subset = 50
 
+#custom color flame color palette
 color.palette = colorRampPalette(c(viridis(6, begin=.1, end=.98), 
                                    rev(magma(5, begin=.25, end=.98))), 
                                  bias=1)
 
+#Need to figure out how to loop through the 5 files and do the whole code for each
 
-#Load focal
-focal_300m_1500m <- readRDS(file.path(onedrive_dir, 
+date = as.Date("2022-01-14")
+
+
+# #Load focal
+focal_100m_500m <- readRDS(file.path(onedrive_dir, 
+                                     "GIS",
+                                     paste0("TonleSap_", date, "_focal_100m_500m.rds")))
+
+focal_100m_2500m <- readRDS(file.path(onedrive_dir,
                                       "GIS",
-                                      "TonleSap_January2022_focal_300m_1500m.rds"))
-
-focal_300m_4500m <- readRDS(file.path(onedrive_dir, 
-                                      "GIS",
-                                      "TonleSap_January2022_focal_300m_4500m.rds"))
+                                      paste0("TonleSap_", date, "_focal_100m_2500m.rds")))
 
 
-#Load NIR
-#300 m resolution
-nir_raster_300m_classified <- readRDS(file.path(onedrive_dir,
-                                                "GIS",
-                                                "TonleSap_January2022_nir_raster_300m_classified.rds"))
-raster_classified <- nir_raster_300m_classified
+# #Load NIR
+# #300 m resolution
+# nir_raster_300m_classified <- readRDS(file.path(onedrive_dir,
+#                                                 "GIS",
+#                                                 "TonleSap_January2022_nir_raster_300m_classified.rds"))
+# raster_classified <- nir_raster_300m_classified
 
-# Load water grid
-watergrid_300m_sp <- readRDS(file.path(onedrive_dir, "GIS",
-                                       "TonleSap_January2022_WaterGrid_300m.rds"))
-projection = proj4string(watergrid_300m_sp)
-watergrid_predict <- watergrid_300m_sp
+# Load water grid (spatial pixels dataframe)
+# This will be where we make our predictions
+# watergrid_300m_sp <- readRDS(file.path(onedrive_dir, "GIS",
+#                                        "TonleSap_January2022_WaterGrid_300m.rds"))
+
+# res = 1000
+# watergrid_1000m_sp <- readRDS(file.path(onedrive_dir, "GIS",
+#                                         "TonleSap_2022-01-14_WaterGrid_1000m.rds"))
+# 
+# 
+# water_raster_1000m_classified <- readRDS(file.path(onedrive_dir,
+#                                                    "GIS",
+#                                                    paste0("TonleSap_", date, "_raster_1000m_classified.rds")))
+# 
+# #identify projection to ensure all other features have the same projection
+# watergrid_predict <- watergrid_1000m_sp
+# water_raster_classified <- water_raster_1000m_classified
+
+res = 500
+watergrid_500m_sp <- readRDS(file.path(onedrive_dir, "GIS",
+                                        "TonleSap_2022-01-14_WaterGrid_500m.rds"))
+
+
+water_raster_500m_classified <- readRDS(file.path(onedrive_dir,
+                                                   "GIS",
+                                                   paste0("TonleSap_", date, "_raster_500m_classified.rds")))
+
+#identify projection to ensure all other features have the same projection
+watergrid_predict <- watergrid_500m_sp
+water_raster_classified <- water_raster_500m_classified
+projection = proj4string(watergrid_predict)
+
 
 #load Tonle Sap Rivers
 TL_rivers <- st_read(file.path(gis_dir, "Mekong"), "TonleSapRiverInputs2") %>%
   st_combine() %>%
-  st_transform(crs(raster_classified))
+  st_transform(projection)
 
 TL_union <- readRDS(file.path(onedrive_dir, 
                               "GIS",
                               "TL_union.rds"))
 
-# #600 m resolution
-# nir_raster_600m_classified <- readRDS(file.path(onedrive_dir, 
-#                                                 "GIS",
-#                                                 "TonleSap_January2022_nir_raster_600m_classified.rds"))
-# raster_classified <- nir_raster_600m_classified
-# 
-# #Load water grid
-# watergrid_600m_sp <- readRDS(file.path(onedrive_dir, "GIS",
-#                                        "TonleSap_January2022_WaterGrid_600m.rds"))
-# projection = proj4string(watergrid_600m_sp)
-# watergrid_predict <- watergrid_600m_sp
 
-
-# watergrid_150m_sp <- readRDS(file.path(onedrive_dir, "GIS",
-#                                        "TonleSap_January2022_WaterGrid_150m.rds"))
-# 
-# projection = proj4string(watergrid_150m_sp)
-# 
-# watergrid_predict <- watergrid_150m_sp
-
-# plot(watergrid_300m_sp, col = "pink")
-# plot(watergrid_150m_sp, col = "pink")
-# plot(watergrid_predict, col = "pink")
-
-res <- raster::res(raster_classified)[1]
-
-# data_name <- "Merged_TonleSap_Sep_2022"
+#folder names in flamebodia data folder
+#Eventually we will loop through these, one for each campaign on the lake
+# (Jan 2022, April 2022, Sept 2022, Jan 2023)
 data_name <- "Merged_TonleSap_Jan_2022"
+# data_name <- "Merged_TonleSap_Sep_2022"
 # data_name <- "Merged_TonleSap_Apr_2022"
-# data_name <- "Merged_Mekong_TonleSap_JanApr_2022"
+# data_name <- "Merged_TonleSap_Jan_2023"
 
 data_dir <- file.path(onedrive_dir,  
                       "Data", 
@@ -105,65 +118,83 @@ data <- readRDS(file.path(data_dir, "Shapefiles",
 
 
 
-
 data <- spTransform(data, crs(watergrid_predict))
 
+#establish variables to interpolate
 variables <- names(data)[4:57]
-# variables <- names(data)[4:61]
+variables <- c("ODO_percent", "ODO_percent_tau", 
+               "ODO_mgL", "ODO_mgL_tau",
+               "CH4Sat", "CH4Sat_tau",
+               "CH4uM", "CH4uM_tau", 
+               "CO2uM", "CO2uM_tau", 
+               "CO2Sat", "CO2Sat_tau")
 
-# data2 <- data %>%
-#   filter(!is.na(ODO_mgL))
-# 
-# predict <- gstat::idw(pull(select(data2@data, ODO_mgL)) ~ 1, 
-#                       data2, 
-#                       watergrid_predict, 
-#                       idp=2)
-# 
-# print(spplot(predict, 
-#              zcol='var1.pred', 
-#              colorkey = TRUE, 
-#              cuts = 99, 
-#              col.regions = color.palette,
-#              # sp.layout=list(l1, l2, l3, l4),
-#              main="Predicted dissolved oxygen (mgL)",
-#              xlim = bbox(watergrid_predict)[1,], 
-#              ylim = bbox(watergrid_predict)[2,]))
+#simple interpolation using inverse distance weighting
+var = variables[1]
+
+#Identify column number in data that contains variable
+column <- which(names(data)==var) 
+
+#filter data so no NAs
+data_idw <- data[which(!is.na(data@data[,column])),]
+
+#predict concentrations
+predict <- gstat::idw(pull(select(data_idw@data, all_of(var))) ~ 1,
+                      data_idw,
+                      watergrid_predict,
+                      idp=2)
+
+#notice how bad the image looks. The boat paths are clearly visible.
+print(spplot(predict,
+             zcol='var1.pred',
+             colorkey = TRUE,
+             cuts = 99,
+             col.regions = color.palette,
+             # sp.layout=list(l1, l2, l3, l4),
+             main= var,
+             xlim = bbox(watergrid_predict)[1,],
+             ylim = bbox(watergrid_predict)[2,]))
 
 
-# Copy from NHLD code
-# Trying to subset based on proximity to measured values. 
+#subset data to improve procesing speed
 data_sample <- data[sample(seq_along(data$date_time), nrow(data)/subset),]
 
-concave_cloud <- hull_polygon(data_sample, 
-                              hull_type = "concave", 
-                              concave_distance_lim = 100,
-                              verbose = TRUE)
 
-buffered_cloud <- gBuffer(concave_cloud, width = 1000*20)
+# # Trying to subset based on proximity to measured values. 
+# #old code using rangemap. Not available for R 4.3
+# 
+# concave_cloud <- rangemap::hull_polygon(data_sample, 
+#                                         hull_type = "concave", 
+#                                         concave_distance_lim = 100,
+#                                         verbose = TRUE)
+# 
+# buffered_cloud <- gBuffer(concave_cloud, width = 1000*20)
 
 # dev.off()
-plot(data_sample, cex = .5)
-plot(concave_cloud, add = TRUE, border = "purple")
-plot(buffered_cloud, add = TRUE, border = "magenta")
+# plot(data_sample, cex = .5)
+# plot(concave_cloud, add = TRUE, border = "purple")
+# plot(buffered_cloud, add = TRUE, border = "magenta")
 
-raster_cropped <- crop(raster_classified, buffered_cloud)
-crop_box <- as(extent(228585, 624885, 1345000, 1555215), "SpatialPolygons")
-crop_box <- as(extent(335000, 501000, 1345000, 1480000), "SpatialPolygons")
-crs(crop_box) <- crs(raster_cropped)
-raster_cropped2 <- crop(raster_classified, crop_box)
+
+# #old code probably deletec
+# raster_cropped <- crop(raster_classified, buffered_cloud)
+# crop_box <- as(extent(228585, 624885, 1345000, 1555215), "SpatialPolygons")
+# crop_box <- as(extent(335000, 501000, 1345000, 1480000), "SpatialPolygons")
+# crs(crop_box) <- crs(raster_cropped)
 # raster_cropped2 <- crop(raster_classified, crop_box)
-
-plot(raster_cropped2)
-plot(crop_box, add = TRUE)
-plot(data_sample, cex = .5, add = TRUE)
-
-data_sample_cropped <- crop(data_sample, raster_classified)
-data_sample_cropped_sf <- st_filter(st_as_sf(data_sample), TL_union)
-data_sample_cropped <- as(data_sample_cropped_sf, "Spatial")
-
-plot(raster_classified)
-plot(st_geometry(data_sample_cropped_sf), add = TRUE)
-plot(data_sample_cropped, add = TRUE, col = "blue")
+# # raster_cropped2 <- crop(raster_classified, crop_box)
+# 
+# plot(raster_cropped2)
+# plot(crop_box, add = TRUE)
+# plot(data_sample, cex = .5, add = TRUE)
+# 
+# data_sample_cropped <- crop(data_sample, raster_classified)
+# data_sample_cropped_sf <- st_filter(st_as_sf(data_sample), TL_union)
+# data_sample_cropped <- as(data_sample_cropped_sf, "Spatial")
+# 
+# plot(raster_classified)
+# plot(st_geometry(data_sample_cropped_sf), add = TRUE)
+# plot(data_sample_cropped, add = TRUE, col = "blue")
 
 # raster_cropped2 <- crop(raster_cropped, crop_box)
 # watergrid_predict2 <- crop(watergrid_predict, crop_box)
@@ -193,47 +224,55 @@ plot(data_sample_cropped, add = TRUE, col = "blue")
 # plot(buffered_cloud, add = TRUE, border = "magenta")
 
 # ##################################################
-# Add distance to land and distance to green to data
+# Add distance to land to data
 # ##################################################
 # create classification matrix
-reclass_df_2 <- c(0, 1, 1,
-                  1, 2, 2,
-                  2, Inf, 3)
-reclass_df_2
-
-reclass_m_2 <- matrix(reclass_df_2,
-                      ncol = 3,
-                      byrow = TRUE)
-
-reclass_m_2
-
-r_classified <- reclassify(raster_classified,
-                           reclass_m_2)
+#This was originally done to make all 'land' pixels the same value
+#As long as water and land are two different integers (0, 1) this should work. 
+# reclass_df_2 <- c(0, 0.5, 0,
+#                   0.5, 1, 1,
+#                   1, Inf, 3)
+# reclass_df_2
+# 
+# reclass_m_2 <- matrix(reclass_df_2,
+#                       ncol = 3,
+#                       byrow = TRUE)
+# 
+# reclass_m_2
+# 
+# r_classified <- reclassify(raster_classified,
+#                            reclass_m_2)
 
 time_start <- Sys.time()
 
 out_data <- list()
 
-for (i in 1:nrow(data_sample_cropped)) {
+for (i in 1:nrow(data_sample)) {
   # for (i in 3871:5000) {
-  d <- distanceFromPoints(r_classified, data_sample_cropped[i, drop = F])
-  out_data[[i]] <- zonal(d, r_classified, min)[,2]
+  d <- distanceFromPoints(water_raster_classified, data_sample[i, drop = F])
+  out_data[[i]] <- zonal(d, water_raster_classified, min)[,2] #may need to change this to pull the right distance metric
 }
 a_data <- do.call(rbind, out_data)
-b_data <- cbind(data_sample_cropped, a_data)
+b_data <- cbind(data_sample, a_data)
 # names(b)[-1] <- paste("DistTo_", 1:6)
 
-b_data$dist_to_land = apply(b_data@data[,c("X2", "X3")], 1, function(x) min(x, na.rm = TRUE))
+b_data$dist_to_land = b_data@data$X1
 
-b_data$dist_to_green = b_data$X2
+spplot(b_data, zcol = "dist_to_land", cuts = c(600, seq(800, max(b_data$dist_to_land), length.out = 10)))
 
 
-b_data$focal_300m_4500m <- raster::extract(focal_300m_4500m, 
-                                           b_data, 
-                                           weights=FALSE, 
-                                           fun=mean, 
-                                           na.rm = TRUE)
-b_data$focal_300m_1500m <- raster::extract(focal_300m_1500m, 
+# b_data$dist_to_land = apply(b_data@data[,c("X2", "X3")], 1, function(x) min(x, na.rm = TRUE)) #might need to modify with 0, 1 instead of 1:6
+
+#not that helpful anymore
+# b_data$dist_to_green = b_data$X2
+
+
+b_data$focal_100m_500m <- raster::extract(focal_100m_500m, 
+                                          b_data, 
+                                          weights=FALSE, 
+                                          fun=mean, 
+                                          na.rm = TRUE)
+b_data$focal_100m_2500m <- raster::extract(focal_100m_2500m, 
                                            b_data, 
                                            weights=FALSE, 
                                            fun=mean, 
@@ -248,14 +287,13 @@ b_data$dist_to_river <-  as.numeric(b_sf$dist_to_river)
 # plot(TL_rivers)
 
 
-spplot(b_data, zcol = "dist_to_land", cuts = c(0, seq(300, max(b_data$dist_to_land), length.out = 10)), main = paste0(res, "m-resolution"))
+spplot(b_data, zcol = "dist_to_land", cuts = c(0, seq(300, max(b_data$dist_to_land), length.out = 10)))
 
-spplot(b_data, zcol = "dist_to_green", cuts = c(0, seq(300, max(b_data$dist_to_land), length.out = 10)), main = paste0(res, "m-resolution"))
 
-spplot(b_data, zcol = "dist_to_river", main = paste0(res, "m-resolution"))
+spplot(b_data, zcol = "dist_to_river")
 
-spplot(b_data, zcol = "focal_300m_1500m", main = paste0(res, "m-resolution"))
-spplot(b_data, zcol = "focal_300m_4500m", main = paste0(res, "m-resolution"))
+spplot(b_data, zcol = "focal_100m_500m")
+spplot(b_data, zcol = "focal_100m_2500m")
 
 
 
@@ -286,7 +324,7 @@ watergrid_predict_subset@data <- watergrid_predict_subset@data %>%
 plot(watergrid_predict, col = "pink")
 plot(watergrid_predict_subset, col = "blue")
 
-spplot(raster_cropped2)
+# spplot(raster_cropped2)
 # plot(watergrid_predict_subset, add = TRUE)
 spplot(b_data, zcol = "dist_to_land")
 
@@ -301,7 +339,7 @@ spplot(b_data, zcol = "dist_to_land")
 watergrid_predict_subset_data <- watergrid_predict_subset
 
 watergrid_predict_subset_data@data <- watergrid_predict_subset_data@data %>%
-  dplyr::select(-layer)
+  dplyr::select(-VH)
 watergrid_predict_subset_data@data[,variables] <- NA
 
 watergrid_predict_subset_data@data <- watergrid_predict_subset_data@data %>%
@@ -315,16 +353,23 @@ names(summary_lake)<-c('Min', 'Q25', 'Median', 'Mean', 'Q75', 'Max', 'Q05', 'Q10
 # ==========================================
 # Start of loop to run through each variable  
 # ==========================================
-var = variables[18]
+var = variables[7]
 for (var in variables[1:length(variables)]){
   var_number <- which(variables == var)
   
   # Select only variable of interest
   data2 <- b_data 
   data2@data <- data2@data %>%
-    dplyr::select(all_of(var), "dist_to_land",  "dist_to_green", 
-                  "focal_300m_4500m", "focal_300m_1500m",
+    dplyr::select(all_of(var), "dist_to_land", 
+                  "focal_100m_500m", "focal_100m_2500m",
                   "dist_to_river")
+  
+  # if (grepl("CH4", var)){
+  #   data2@data <- data2@data %>%
+  #     dplyr::select(all_of(var), "dist_to_land", 
+  #                   "focal_100m_500m", "focal_100m_2500m",
+  #                   "dist_to_river")
+  # }
   
   #Identify column in data2 that contains variable (should be 1)
   column <- which(names(data2)==var) 
@@ -366,20 +411,21 @@ for (var in variables[1:length(variables)]){
     # subset (%) of the data. Take random percent of points
     # Depending on the analysis and size of data, R cannot handle entire dataset
     # data3 <- data2[sample(nrow(data2), nrow(data2)/subset), ]
-
+    
     row_good <- which(!is.na(data2@data$dist_to_land) & 
-                      !is.na(data2@data$dist_to_river) & 
-                      !is.na(data2@data$focal_300m_4500m) & 
-                      !is.na(data2@data$focal_300m_1500m))
-      # filter(!is.na(dist_to_land), !is.na(dist_to_river), 
-      #        !is.na(focal_300m_4500m), !is.na(focal_300m_1500m))
-      # 
+                        !is.na(data2@data$dist_to_river) &
+                      !is.na(data2@data$focal_100m_500m) &
+                      !is.na(data2@data$focal_100m_2500m)
+    )
+    # filter(!is.na(dist_to_land), !is.na(dist_to_river), 
+    #        !is.na(focal_300m_4500m), !is.na(focal_300m_1500m))
+    # 
     data3 <- data2[row_good,]
     
-      data3@data <- data3@data %>%
+    data3@data <- data3@data %>%
       mutate(log10_dist_to_land = log10(dist_to_land)) 
-      
-      
+    
+    
     colnames(data3@coords)<-c("x", "y")
     
     raw_values <- pull(dplyr::select(data3@data, all_of(var)))
@@ -387,12 +433,19 @@ for (var in variables[1:length(variables)]){
     if(negative_offset < 0) {negative_offset == 0}
     adjust_values <- raw_values - negative_offset
     
-    power <- powerTransform(adjust_values)
+    #options for transfomring data
+    #use data to identify ideal power adjustment. Not sure exactly how this works
+    # power <- powerTransform(adjust_values)
+    # data3$bc <- bcPower(adjust_values, power$lambda)
     
-    data3$bc <- bcPower(adjust_values, power$lambda)
+    # if(grepl("CH4", var)){
+      data3$bc <- log10(adjust_values) #testing for CH4
+    # }
+    
     
     PREDICTOR <- select(data3@data, dist_to_land, dist_to_river, 
-                        focal_300m_4500m, focal_300m_1500m)
+                        focal_100m_500m, focal_100m_2500m
+    )
     RESPONSE <- pull(select(data3@data, bc))
     
     # #########################
@@ -417,7 +470,7 @@ for (var in variables[1:length(variables)]){
     set.seed(1856)
     GLM <- caret::train(x = PREDICTOR,
                         y = RESPONSE,
-                        method = "glm",
+                        method = "gam",
                         # trControl = myControl,
                         preProc=c('center', 'scale'))
     print(GLM)
@@ -454,21 +507,35 @@ for (var in variables[1:length(variables)]){
     
     names(SK.GLM) <- c(paste(var, sep=""), paste(var, "_v", sep=""))
     
-    spplot(SK.GLM, names(SK.GLM)[1], colorkey=TRUE, cuts=99)
+    spplot(SK.GLM, names(SK.GLM)[1], colorkey=TRUE, cuts=99) # plot of residuals in transformed space
+    spplot(watergrid_predict_subset, "GLM", colorkey=TRUE, cuts=99) #plot of regression estimates transformed
+    
     
     watergrid_predict_subset$SK.GLM <- SK.GLM@data[, names(SK.GLM)[1]]
     
     #add glm model estimates with kriged estimates of residuals
-    watergrid_predict_subset$RK.GLM.bc<-(watergrid_predict_subset$GLM+watergrid_predict_subset$SK.GLM)
+    watergrid_predict_subset$RK.GLM.bc <- (watergrid_predict_subset$GLM+watergrid_predict_subset$SK.GLM)
     
-    #return from transformed space
-    k1 <- 1/power$lambda                                
-    watergrid_predict_subset$RK.GLM <-((watergrid_predict_subset$RK.GLM.bc *power$lambda+1)^k1) + negative_offset
-    # summary(watergrid_predict_subset)
+    # #return from transformed space
+    # k1 <- 1/power$lambda      
+    # watergrid_predict_subset$RK.GLM <-((watergrid_predict_subset$RK.GLM.bc *power$lambda+1)^k1) + negative_offset
+    # # summary(watergrid_predict_subset)
     
+    #return from transformed space log10 for CH4
+    # if (grepl("CH4", var)){
+      watergrid_predict_subset$RK.GLM <-(10^watergrid_predict_subset$RK.GLM.bc) + negative_offset
+    # }
+    
+    #map of predictions in native unit
     spplot(watergrid_predict_subset, "RK.GLM", colorkey=TRUE, cuts=99, 
            main=paste(var, " prediction_Krig_Regression_DistToLand", sep=""), 
-           xlim=bbox(raster_cropped)[1,], ylim=bbox(raster_cropped)[2,])
+           xlim=bbox(water_raster_classified)[1,], ylim=bbox(water_raster_classified)[2,])
+    
+    #log predictionspace
+    spplot(watergrid_predict_subset, "RK.GLM.bc", colorkey=TRUE, cuts=99, 
+           main=paste(var, " prediction_Krig_Regression_DistToLand", sep=""), 
+           xlim=bbox(water_raster_classified)[1,], ylim=bbox(water_raster_classified)[2,])
+    
     
     
     # Create summary stats for variable

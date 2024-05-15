@@ -48,9 +48,12 @@ MergeMapMulti <- function(home_path,
       geo_list[[geoclean_i]] <- st_as_sf(readRDS(file_load)) %>%
         mutate(id = factor(names_to_merge[geoclean_i], names_to_merge))
       
-      names(geo_list[[geoclean_i]])[which(names(geo_list[[geoclean_i]]) == "nn03_mg")] <- "NO3_mgL"
-      names(geo_list[[geoclean_i]])[which(names(geo_list[[geoclean_i]]) == "no3_uM")] <- "NO3_uM"
-      
+      if(c("nn03_mg") %in% names(geo_list[[geoclean_i]])){
+        names(geo_list[[geoclean_i]])[which(names(geo_list[[geoclean_i]]) == "nn03_mg")] <- "NO3_mgL"
+      }
+      if(c("no3_uM") %in% names(geo_list[[geoclean_i]])){
+        names(geo_list[[geoclean_i]])[which(names(geo_list[[geoclean_i]]) == "no3_uM")] <- "NO3_uM"
+      }
       
     }
     
@@ -72,7 +75,7 @@ MergeMapMulti <- function(home_path,
       select(intersect(vars_start, names(geo_sf)), 
              everything())
     
-
+    
     
     
     # Old way. Fails if columns are mismatched
@@ -80,7 +83,7 @@ MergeMapMulti <- function(home_path,
     
     geo_location <- geo_merge 
     geo_location@data <- geo_merge@data %>%
-      dplyr::select(date_time)
+      dplyr::select(id, date_time, latitude, longitude)
     
     
     geo_chla <- geo_merge 
@@ -89,14 +92,15 @@ MergeMapMulti <- function(home_path,
     
     geo_dataviz <- geo_merge 
     geo_dataviz@data <- geo_merge@data %>%
-      dplyr::select(id, date_time, 
-                    latitude, longitude, 
-                    temp, specCond, 
-                    pH, turb_FNU,
-                    ODO_percent, ODO_mgL, 
-                    chlor_RFU, chlor_ugL,
-                    BGApc_RFU, BGApc_ugL, 
-                    nn03_mg, NO3_mgL)
+      dplyr::select(intersect(names(geo_merge@data), 
+                              c("id", "date_time",
+                                "latitude", "longitude",
+                                "temp", "specCond",
+                                "pH", "turb_FNU",
+                                "ODO_percent", "ODO_mgL",
+                                "chlor_RFU", "chlor_ugL",
+                                "BGApc_RFU", "BGApc_ugL",
+                                "NO3_mgL", "nn03_mg")))
     
     
     # geo_location <- geo_merge %>%
@@ -145,7 +149,7 @@ MergeMapMulti <- function(home_path,
                                 paste0(multi_merge_name, "_", "Shapefile_Chlor.rds")))
     
     saveRDS(geo_dataviz, file.path(home_path, multi_merge_name, "Shapefiles",
-                                paste0(multi_merge_name, "_", "Shapefile_DataViz.rds")))
+                                   paste0(multi_merge_name, "_", "Shapefile_DataViz.rds")))
     
     
     
@@ -179,7 +183,12 @@ MergeMapMulti <- function(home_path,
                   "Turb_C6P", "CDOM_C6P", 
                   "CHL_a_C6P","Brightners",
                   "Fluorescein","Ref_Fuel",
-                  "Temp_C6P", "CDOM_C6P_turb", 
+                  "Temp_C6P",  
+                  "CDOM_C6P_wt", "CDOM_C6P_turb",
+                  "CHL_a_C6P_wt", 
+                  "Brightners_wt", "Brightners_turb",
+                  "Fluorescein_wt", 
+                  "Ref_Fuel_wt", "Ref_Fuel_turb",
                   "FP_Trans", "FP_GreenAlgae",
                   "FP_BlueGreen", "FP_Diatoms",
                   "FP_Cryptophyta", "FP_YellowSubs")
@@ -191,9 +200,89 @@ MergeMapMulti <- function(home_path,
     unique_id <- length(unique(geo_merge@data$id))
     panel_rows = ceiling(unique_id/3)
     panel_cols = min(c(unique_id, 3))
-
     
-    var_i=1
+    
+    locationTheme_map<-list(
+      facet_wrap(~id, ncol = 1, drop = FALSE, strip.position = "right"),
+      theme(strip.background = element_rect(fill = NA), 
+            strip.text = element_text(size = 20)),
+      theme(
+        # axis.text.x=element_blank(), 
+        #     axis.text.y=element_blank(), 
+        axis.title.y=element_blank(), 
+        axis.title.x=element_blank(), 
+        # axis.ticks=element_blank(), 
+        plot.margin = unit(c(0.5, 0.5, 0.5, 0.5), "cm"),
+        plot.title = element_text(hjust = 0.5)),
+      theme(panel.border=element_rect(fill = NA, colour = 'black'))
+      
+    )
+    bigmap <- maps[[1]]
+    bb <- attr(bigmap, "bb")
+    
+    smallmap <- maps[[5]]
+    bb_small<- attr(smallmap, "bb")
+    
+    if(class(smallmap)[1] != "ggmap"){
+      message("ggmap plotting only accepts ggmaps objects")
+    } else if (class(basemap)[1] == "ggmap"){
+      
+      geo_location_sub <- geo_location[(sample(1:nrow(geo_location), 
+                                               nrow(geo_location)*0.1)),]
+      
+      
+      
+      #Big map
+      map_location_big <- ggmap(bigmap) +
+        geom_point(aes_string(x = geo_location_sub$longitude, 
+                              y = geo_location_sub$latitude),
+                   data = geo_location_sub@data, 
+                   alpha = 1, size = 2, color = "red") +
+        locationTheme_map +
+        theme(strip.text = element_blank(), 
+              strip.background = element_blank())
+      
+      
+      # print(map_location_big)
+      
+      map_location_small <- ggmap(smallmap) +
+        geom_point(aes_string(x = geo_location_sub$longitude, 
+                              y = geo_location_sub$latitude),
+                   data = geo_location_sub@data, 
+                   alpha = 1, size = 2, color = "red") +
+        locationTheme_map
+      
+      # print(map_location_small)
+      
+      map_location <- ggpubr::ggarrange(map_location_big, 
+                                        map_location_small, 
+                                        ncol = 2, 
+                                        nrow = 1,
+                                        align = "v"
+                                        )
+      
+      # print(map_location)
+      
+      ggsave(file.path(home_path, multi_merge_name, 
+                       paste0(multi_merge_name, '_location', ".png")), 
+             map_location, 
+             width = 2*3 +1.5, height = (5*3),
+             units = "in", dpi = dpi)
+      
+      
+      # 
+      # geo_location_sf <- st_as_sf(geo_location_sub) %>%
+      #   arrange(desc(date_time))
+      # 
+      # map_location_big_all <- ggmap(bigmap) +
+      #   geom_sf(aes(color = id),
+      #              data = geo_location_sf[1:10,])
+      # 
+      # print(map_location_big_all)
+      # 
+    }
+    
+    var_i = 1
     #Loop through geodata and plot each variable
     for (var_i in 1:length(plotvars_i)){
       name <- plotvars_i[var_i]
@@ -206,7 +295,7 @@ MergeMapMulti <- function(home_path,
         # unique_id <- length(unique(a@data$id))
         # panel_rows = ceiling(unique_id/3)
         # panel_cols = min(c(unique_id, 3))
-          
+        
         
         if (legend == "bottomleft"){
           loc <- c(.01, .04/panel_rows)

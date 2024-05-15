@@ -9,7 +9,7 @@ RemoveErroneousData <- function(trimdata, bad_data = NULL){
     
     rows_bad <- which(bad_data$variable %in% names(trimdata2))
     row_i <- rows_bad[1]
-    row_i <- 4
+    row_i <- 1
     for(row_i in rows_bad) {
       name_i <- bad_data$variable[row_i]
       col_i <- which(names(trimdata2) == name_i)

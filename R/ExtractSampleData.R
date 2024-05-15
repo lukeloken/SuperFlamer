@@ -3,12 +3,14 @@
 library(caTools)
 library(survival)
 
-ExtractSample<-function(cleandata, alldata, sample, dir, Date, tz){
+ExtractSample<-function(cleandata, alldata, sample, dir, Date, tz, stat = "mean"){
   
   if (nrow(sample)==0){
     warning('no samples')}
   
-  samplevars<-c ("sample_id", "event_id", "Sample.Number", "Sample.Time", "Sample.Notes")
+  samplevars <-c("sample_id", "event_id", "Sample.Number", "Sample.Time", "Sample.Notes")
+  
+  samplevars <- intersect(samplevars, names(sample))
   
   sample$DateTime<- as.POSIXct(round(as.POSIXct(paste(Date, sample$'Sample Time', sep=" "), format="%Y-%m-%d %H:%M:%S", tz=tz), "mins"))
   
@@ -27,7 +29,7 @@ ExtractSample<-function(cleandata, alldata, sample, dir, Date, tz){
   if(nrow(sample_missing)>0){
     alldata$date_time<-as.POSIXct(round(alldata$date_time, "mins"))
     table3 <- as.data.frame(aggregate(alldata, by=list(alldata$date_time), 
-                                      FUN=mean, na.rm=TRUE)) %>%
+                                      FUN=stat, na.rm=TRUE)) %>%
       select(date_time, latitude, longitude)
     
     usedaterow <- sapply(sample_missing$DateTime, function(x) which.min(abs(table3$date_time - x)))

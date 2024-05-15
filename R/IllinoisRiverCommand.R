@@ -27,6 +27,10 @@ source('remove_bad_data_Illinois.R')
 
 onedrive_dir <- 'C:/Users/slafond-hudson/DOI/Loken, Luke C - FLAMeIllinois/'
 
+#Load the flame directories
+home_path <- "C:/Users/lloken/OneDrive - DOI/FLAMeIllinois/Data"
+
+
 #Illinois River (May 2022)
 map_big <- readRDS(file = file.path(onedrive_dir, 'SpatialData',
                                     'IllinoisRiver_big_ggmap.rds'))
@@ -55,8 +59,6 @@ map_zoom10_7 <- readRDS(file.path(onedrive_dir, 'SpatialData',
 
 bad_data <- remove_bad_data_Illinois()
 
-#Load the flame directories
-home_path <- "C:/Users/slafond-hudson/DOI/Loken, Luke C - FLAMeIllinois/Data"
 
 #May 2022 (Illinois)
 dates_merge <- seq.Date(as.Date("2022-05-02"), as.Date("2022-05-07"), by = "day")
@@ -95,8 +97,8 @@ maps <- list(map_big, map_zoom10_7, map_zoom10_6, map_zoom10_5,
 directories_all <- list.files(home_path)
 directories_dates <- which(!is.na(as.Date(directories_all)) & as.Date(directories_all) %in% dates_merge)
 directories_torun <- file.path(home_path, directories_all[directories_dates])
-directories_torun <- directories_torun[length(directories_torun)]
-# dir = directories_torun[8]
+# directories_torun <- directories_torun[length(directories_torun)]
+# dir = directories_torun[10]
 for(dir in directories_torun){
   # dir<-'C:/Users/lloken/OneDrive - DOI/Flamebodia/Data/2022-01-14_TonleSapNorthShore'
   # dir<-'C:/Users/lloken/OneDrive - DOI/Flamebodia/Data/2022-01-15_TonleSapNorthBasin'
@@ -146,7 +148,6 @@ for(dir in directories_torun){
 #load merging scripts/functions
 source('R/MergeSampleTables.R')
 source('R/MergeMap.R')
-source('R/MergeMapMulti.R')
 
 #May 2022
 merge_name <- "Merged_Illinois_May_2022"
@@ -188,6 +189,8 @@ maps <- list(map_big, map_upper, map_middle, map_lower,
              map_zoom10_4, map_zoom10_3, map_zoom10_2, map_zoom10_1)
 dir.create(file.path(home_path, merge_name), showWarnings = FALSE)
 
+
+
 # after loading campaign details, merge directories by campaign
 directories_all <- list.files(home_path)
 directories_dates <- which(!is.na(as.Date(directories_all)) & as.Date(directories_all) %in% dates_merge)
@@ -210,6 +213,8 @@ MergeMap(home_path, directories_merge, merge_name, maps, legend = "topleft",
 # ################################################
 # Make multi-panel maps across seasons
 # ################################################
+
+source('R/MergeMapMulti.R')
 
 multi_merge_name <- "Merged_Illinois_May_2022_Jul_2023"
 names_to_merge <- c("Merged_Illinois_May_2022", 

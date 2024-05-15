@@ -92,6 +92,61 @@ map_test<-get_googlemap(center = c(104.45, 12.35),
 # 
 # ggmap(map_Mekong_big)
 
+map_Mekong_big2 <- get_googlemap(center = c(104.5, 12.4),
+                        size = c(420,420),
+                        zoom = 8,
+                        scale = 2,
+                        maptype = "satellite",
+                        key=GoogleAPIkey, 
+                        color = "bw")
+
+
+
+ggmap(map_Mekong_big2)
+
+loc <- c(102.5, 11.1, 105.5, 13.9)
+# map_Mekong_big3 <- get_googlemap(location = loc,
+#                                  size = c(420,420),
+#                                  zoom = 8,
+#                                  scale = 2,
+#                                  maptype = "satellite",
+#                                  key=GoogleAPIkey, 
+#                                  color = "bw")
+
+map_Mekong_big3 <- get_map(location = c(104.5, 12.4),
+                                 size = c(200,200),
+                                 zoom = 8,
+                                 scale = 2,
+                                 maptype = "satellite",
+                                 key=GoogleAPIkey, 
+                                 color = "bw")
+
+ggmap(map_Mekong_big3)
+
+map_Mekong_big3_color <- get_map(location = c(104.5, 12.4),
+                           size = c(200,200),
+                           zoom = 8,
+                           scale = 2,
+                           maptype = "satellite",
+                           key=GoogleAPIkey, 
+                           color = "color")
+
+
+
+ggmap(map_Mekong_big3_color)
+
+gg <- ggmap(map_Mekong_big3)
+gg <- gg + 
+  scale_y_continuous(limits = c(13.5, 11.2), expand = c(0,0)) + 
+  scale_x_continuous(limits = c(103.2, 105.3), expand = c(0,0))
+
+gg
+
+loc
+
+
+location=loc
+
 #Mekong South
 map_Mekong_south <- get_googlemap(center = c(104.9, 11.3),
                         size = c(640,640),
@@ -157,6 +212,9 @@ saveRDS(map_Mekong_middle1, file.path(onedrive_dir, 'SpatialData', 'MekongRiver_
 saveRDS(map_Mekong_middle2, file.path(onedrive_dir, 'SpatialData', 'MekongRiver_middle2_ggmap.rds'))
 saveRDS(map_Mekong_north, file.path(onedrive_dir, 'SpatialData', 'MekongRiver_north_ggmap.rds'))
 saveRDS(map_Mekong_north2, file.path(onedrive_dir, 'SpatialData', 'MekongRiver_north2_ggmap.rds'))
+saveRDS(map_Mekong_big3_color, file.path(onedrive_dir, 'SpatialData', 'MekongRiver_big3_color_ggmap.rds'))
+saveRDS(map_Mekong_big3, file.path(onedrive_dir, 'SpatialData', 'MekongRiver_big3_ggmap.rds'))
+
 
 # 
 # 

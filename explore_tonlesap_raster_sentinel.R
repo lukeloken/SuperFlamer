@@ -57,10 +57,10 @@ saveRDS(m1,
 
 
 
-plot(nir_raster)
+# plot(nir_raster)
 plot(st_geometry(TLS_watershed), add = TRUE)
-plot(st_geometry(TLS_outline), col = "skyblue", add = TRUE)
-plot(st_geometry(TLC_outline), col = "skyblue", add = TRUE)
+plot(st_geometry(TLS_outline), border = "magenta", add = TRUE)
+plot(st_geometry(TLC_outline), border = "magenta", add = TRUE)
 plot(st_geometry(TL_rivers), col = "darkblue", add = TRUE)
 
 #Make a buffer around lakes and subset raster (using 20 km)
@@ -72,13 +72,18 @@ plot(st_geometry(TLS_outline_buffer), add = TRUE, fill = NA)
 plot(st_geometry(TLC_outline_buffer), add = TRUE, fill = NA)
 plot(st_geometry(TL_union), add = TRUE, fill = NA, border = "blue", lwd = 2)
 
-
 terra::res(nir_raster)
+terra::res(m1)
 
 nir_raster_cropped <- crop(nir_raster, TL_union)
 nir_raster_masked <- mask(nir_raster_cropped, TL_union)
-
 plot(nir_raster_masked)
+
+m1_cropped <- crop(m1, TL_union)
+m1_masked <- mask(m1_cropped, TL_union)
+plot(m1_masked)
+
+
 # plot(st_geometry(TLS_watershed), add = TRUE)
 plot(st_geometry(TLS_outline), border = "darkblue", add = TRUE, lwd = 2)
 plot(st_geometry(TLC_outline), border = "darkblue", add = TRUE, lwd = 2)
@@ -90,46 +95,46 @@ plot(st_geometry(TL_rivers), col = "darkblue", add = TRUE)
 #Some of these will be used to identify where to predict
 #Courser scales will be used as co-predictors (how much water is around you?)
 
-#aggregate to 150x150 (factor = 5)
-nir_raster_150m <- aggregate(nir_raster_masked, fact = 5)
-terra::res(nir_raster_150m)
-plot(nir_raster_150m)
+#aggregate to 150x150 (factor = 15)
+m1_150m <- aggregate(m1_masked, fact = 15)
+terra::res(m1_150m)
+plot(m1_150m)
 
-#aggregate to 300x300 (factor = 10)
-nir_raster_300m <- aggregate(nir_raster_masked, fact = 10)
-terra::res(nir_raster_300m)
-plot(nir_raster_300m)
+#aggregate to 300x300 (factor = 30)
+m1_300m <- aggregate(m1_masked, fact = 30)
+terra::res(m1_300m)
+plot(m1_300m)
 
 #aggregate to 600x600m (factor = 20)
-nir_raster_600m <- aggregate(nir_raster_masked, fact = 20)
-terra::res(nir_raster_600m)
-plot(nir_raster_600m)
+m1_600m <- aggregate(m1_masked, fact = 60)
+terra::res(m1_600m)
+plot(m1_600m)
 
-#aggregate to 1200x1200m (factor = 40)
-nir_raster_1200m <- aggregate(nir_raster_masked, fact = 40)
-terra::res(nir_raster_1200m)
-plot(nir_raster_1200m)
+#aggregate to 1000x1000m (factor = 40)
+m1_1000m <- aggregate(m1_masked, fact = 100)
+terra::res(m1_1000m)
+plot(m1_1000m)
 
 #aggregate to 400x2400m (factor = 80)
-nir_raster_2400m <- aggregate(nir_raster_masked, fact = 80)
-terra::res(nir_raster_2400m)
-plot(nir_raster_2400m)
+m1_2500m <- aggregate(m1_masked, fact = 250)
+terra::res(m1_2500m)
+plot(m1_2500m)
 
 #aggregate to 4800x4800m (factor = 160)
-nir_raster_4800m <- aggregate(nir_raster_masked, fact = 160)
-terra::res(nir_raster_4800m)
-plot(nir_raster_4800m)
+m1_5000m <- aggregate(m1_masked, fact = 500)
+terra::res(m1_5000m)
+plot(m1_5000m)
 
 #aggregate to 9600x9600m (factor = 320)
-nir_raster_9600m <- aggregate(nir_raster_masked, fact = 320)
-terra::res(nir_raster_9600m)
-plot(nir_raster_9600m)
+m1_10000m <- aggregate(m1_masked, fact = 1000)
+terra::res(m1_10000m)
+plot(m1_10000m)
 
 #Test summarize neighborhood (300m)
-focal_300m_1500m = focal(nir_raster_300m, w = matrix(1, nrow = 5, ncol = 5), fun = mean)
+focal_300m_1500m = focal(m1_300m, w = matrix(1, nrow = 5, ncol = 5), fun = mean)
 plot(focal_300m_1500m)
 
-focal_300m_4500m = focal(nir_raster_300m, w = matrix(1, nrow = 15, ncol = 15), fun = mean)
+focal_300m_4500m = focal(m1_300m, w = matrix(1, nrow = 15, ncol = 15), fun = mean)
 plot(focal_300m_4500m)
 
 # focal_300m_1500m_max = focal(nir_raster_300m, w = matrix(1, nrow = 5, ncol = 5), fun = max)
@@ -155,17 +160,17 @@ saveRDS(focal_300m_4500m,
                   "TonleSap_January2022_focal_300m_4500m.rds"))
 
 
-#Test summarize neighborhood (150m)
-focal_150m_1350m = focal(nir_raster_150m, w = matrix(1, nrow = 9, ncol = 9), fun = mean)
-plot(focal_150m_1350m)
-plot(st_geometry(TLS_outline), border = "darkblue", add = TRUE, lwd = 2)
-plot(st_geometry(TLC_outline), border = "darkblue", add = TRUE, lwd = 2)
-
-
-focal_150m_4350m = focal(nir_raster_150m, w = matrix(1, nrow = 29, ncol = 29), fun = mean)
-plot(focal_150m_4350m)
-plot(st_geometry(TLS_outline), border = "darkblue", add = TRUE, lwd = 2)
-plot(st_geometry(TLC_outline), border = "darkblue", add = TRUE, lwd = 2)
+# #Test summarize neighborhood (150m)
+# focal_150m_1350m = focal(nir_raster_150m, w = matrix(1, nrow = 9, ncol = 9), fun = mean)
+# plot(focal_150m_1350m)
+# plot(st_geometry(TLS_outline), border = "darkblue", add = TRUE, lwd = 2)
+# plot(st_geometry(TLC_outline), border = "darkblue", add = TRUE, lwd = 2)
+# 
+# 
+# focal_150m_4350m = focal(nir_raster_150m, w = matrix(1, nrow = 29, ncol = 29), fun = mean)
+# plot(focal_150m_4350m)
+# plot(st_geometry(TLS_outline), border = "darkblue", add = TRUE, lwd = 2)
+# plot(st_geometry(TLC_outline), border = "darkblue", add = TRUE, lwd = 2)
 
 
 # focal_150m_1350m_max = focal(nir_raster_150m, w = matrix(1, nrow = 9, ncol = 9), fun = max)

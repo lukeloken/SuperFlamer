@@ -85,10 +85,19 @@ PlotSuperFlameGGmap<-function(geodata, dir, Date, Site, meta, maps,
         if (nrow(a)>0){
           
           if (legend == "lowerleft"){
-            loc <- c(.02, .04)
-          } else if (legend == "topleft"){
-            loc <- c(.02, .85)
+            loc <- c(.02, .06)
+            just <- c(0,0)
+          } else if (legend == "upperleft"){
+            loc <- c(.02, .98)
+            just <- c(0,1)
+          } else if (legend == "lowerright"){
+            loc <- c(.98, .04)
+            just <- c(1,0)
+          } else if (legend == "upperright"){
+            loc <- c(.98, .98)
+            just <- c(1,1)
           }
+        
           
           commonTheme_map<-list(
             theme(axis.text.x=element_blank(), 
@@ -96,11 +105,11 @@ PlotSuperFlameGGmap<-function(geodata, dir, Date, Site, meta, maps,
                   axis.title.y=element_blank(), 
                   axis.title.x=element_blank(), 
                   axis.ticks=element_blank(), 
-                  plot.margin = unit(c(0, 0, 0, 0), "cm")),
+                  plot.margin = unit(c(0.05, 0.05, 0.05, 0.05), "cm")),
             scale_colour_gradientn(colours = color.palette(n=100), 
                                    limits=a_1_99tile, oob = scales::squish),
             theme(legend.position = loc, 
-                  legend.justification = c(0,0), 
+                  legend.justification = just, 
                   legend.background = element_rect(fill = 'white', colour='black'),
                   legend.text=element_text(size=8),
                   legend.title=element_text(size=10), 

@@ -1,4 +1,13 @@
 
+# home_path
+# chem_path 
+# samples_merged
+# merge_name 
+# map = maps[[1]] 
+# plot_title = plot_name 
+# legend = "bottomleft"
+# title_location = "inside" 
+# color_scale = "samplechem"
 
 MergeChemistry <- function(home_path, 
                            chem_path, 
@@ -226,10 +235,9 @@ MergeChemistry <- function(home_path,
                                                 "M7", "M6", "M5") ~ "MekongUpper", 
                             site_id %in% c("MRU", "MRD", "MRL", 
                                            "BR1", "B2", "B1", 
-                                           "M4", "M3", "M2", "M1",
-                                           "TSR1", "TL21") ~ "MekongLower", 
-                            site_id %in% c("TSR3", "TSR4", "TLR2", "PS1", "TL20", "m5") ~ "TonleSapOutlet", 
-                            site_id %in% c("TSL1", "TSM1", "TL12", "TSU1") ~ "TonleSapMiddle", 
+                                           "M4", "M3", "M2", "M1" ) ~ "MekongLower", 
+                            site_id %in% c("TSR3", "TSR4", "TLR2", "PS1", "TL20", "m5", "TL21",  "TSR1", "KPC") ~ "TonleSapOutlet", 
+                            site_id %in% c("TSL1", "TSM1", "TL12", "TSU1", "MT", "MLF") ~ "TonleSapMiddle", 
                             TRUE ~ "TonleSapEdge" )) %>%
     arrange(site_type, site_id) %>%
     distinct()
@@ -290,12 +298,13 @@ MergeChemistry <- function(home_path,
     loc <- c(.85, .85)
   }
   
-  var_i <- 1
+  var_i <- 23
   for (var_i in seq_along(plot_vars)){
     var_name <- plot_vars[var_i]
     
     chem_geo_i <- filter(chem_geo, constituent == var_name) %>%
-      filter(!is.na(result_value)) 
+      filter(!is.na(result_value)) %>%
+      arrange((result_value))
     
     if(color_scale == "samplechem") {
       chem_geo_i <- chem_geo_i %>%
